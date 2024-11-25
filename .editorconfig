@@ -121,6 +121,9 @@ csharp_style_throw_expression = true:suggestion
 csharp_style_unused_value_assignment_preference = discard_variable:suggestion
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
 
+# Namespace declaration preferences
+csharp_style_namespace_declarations = file_scoped
+
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace:silent
 
@@ -362,3 +365,8 @@ dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator = 
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
+# Analyzis rules severity
+# Ignore top-level statements warning
+dotnet_diagnostic.IDE0210.severity = none
+# Ignore missing XML documentation warning
+dotnet_diagnostic.CS1591.severity = none
