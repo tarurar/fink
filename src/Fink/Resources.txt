@@ -1,6 +1,8 @@
-UsageMessage=Usage: fink <project>
+BuildFailed=Build failed
 BuildingProjectFmt=Building project: {0}
 BuildingResultsFmt=Build results for tfm {0}
-ProjectAssetsFileFmt=Project assets file: {0}
 BuildSucceeded=Build succeeded
-BuildFailed=Build failed
+ProjectAssetsFileFmt=Project assets file: {0}
+ProjectPropertiesTitle=Project Properties
+ProjectPropertyLineFmt=Property: {0}, Value: {1}
+UsageMessage=Usage: fink <project>

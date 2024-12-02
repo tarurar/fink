@@ -44,6 +44,15 @@ internal sealed class Program
             if (buildResult.Succeeded)
             {
                 Console.WriteLine(
+                    rm.GetString("ProjectPropertiesTitle", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException());
+                foreach (KeyValuePair<string, string> kvp in buildResult.Properties)
+                {
+                    Console.WriteLine(
+                        rm.GetString("ProjectPropertyLineFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
+                        kvp.Key,
+                        kvp.Value);
+                }
+                Console.WriteLine(
                 rm.GetString("ProjectAssetsFileFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
                 buildResult.GetProperty("ProjectAssetsFile") ?? "N/A");
             }
