@@ -16,4 +16,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Fink\Fink.csproj" />
+  </ItemGroup>
+
 </Project>

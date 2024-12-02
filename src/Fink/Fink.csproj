@@ -4,4 +4,10 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Buildalyzer" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" />
+  </ItemGroup>
+
+  <Import Project="build/Resources.targets" />
 </Project>
