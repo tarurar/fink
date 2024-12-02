@@ -9,4 +9,5 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" />
   </ItemGroup>
 
+  <Import Project="build/Resources.targets" />
 </Project>

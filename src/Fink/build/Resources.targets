@@ -1,0 +1,9 @@
+<Project>
+    <Target Name="GenerateResources" BeforeTargets="BeforeCompile" Inputs="Resources.txt" Outputs="Resources.resources">
+        <Exec Command="resgen Resources.txt Resources.resources" />
+    </Target>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Resources.resources" />
+    </ItemGroup>
+</Project>
