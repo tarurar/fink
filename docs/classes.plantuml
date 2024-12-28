@@ -1,0 +1,89 @@
+@startuml Fink Classes
+
+class Environment {
+    + TargetFrameworkMoniker : string
+}
+
+set separator none
+package "Fink.Abstractions" {
+    interface IProject {
+        + Path : string
+        + Dependencies : IPackageDependency[]
+    }
+
+    interface IPackageDependency {
+        + Id : PackageIdentity
+        + Type : PackageDependencyType
+        + MajorVersion : PackageMajorVersion
+    }
+
+    enum PackageDependencyType {
+
+    }
+
+    class PackageMajorVersion {
+
+    }
+
+    class PackageIdentity {
+
+    }
+
+    IProject::Dependencies "1" o-- "many" IPackageDependency : has
+    IPackageDependency::Type *-- PackageDependencyType : has
+    IPackageDependency::MajorVersion *-- PackageMajorVersion : has
+    IPackageDependency::Id *-- PackageIdentity : has
+}
+
+package "Fink.NuGet" {
+
+}
+note "Package implements abstractions" as N1
+"Fink.NuGet"..N1
+
+package "Fink.Console" {
+
+}
+
+package "NuGet.ProjectModel" {
+    class LockFile {
+        + Targets : LockFileTarget[]
+    }
+
+    class LockFileTarget {
+        + Libraries : LockFileTargetLibrary[]
+    }
+
+    class LockFileTargetLibrary {
+        + Name : string
+        + Version : NuGetVersion
+        + Dependencies : PackageDependency[]
+    }
+
+    enum PackageDependencyType {
+    }
+
+    LockFile::Targets o-- LockFileTarget : has
+    LockFileTarget::Libraries o-- LockFileTargetLibrary : has
+}
+
+package "NuGet.Versioning" {
+    class NuGetVersion {
+    }
+
+    class VersionRange {
+    }
+}
+
+package "NuGet.Packaging" {
+    class PackageDependency {
+        + Id : string
+        + VersionRange : VersionRange
+    }
+}
+
+LockFileTargetLibrary::Version *-- NuGetVersion : has
+LockFileTargetLibrary::Dependencies o-- PackageDependency : has
+PackageDependency::VersionRange o-- VersionRange : has
+
+@enduml
