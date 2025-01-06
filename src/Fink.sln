@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink", "Fink\Fink.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Tests", "Fink.Tests\Fink.Tests.csproj", "{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.NuGet", "Fink.NuGet\Fink.NuGet.csproj", "{FB26CED4-1293-4DD5-AD2B-C8158951D07F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.NuGet", "Fink.Integrations.NuGet\Fink.Integrations.NuGet.csproj", "{FB26CED4-1293-4DD5-AD2B-C8158951D07F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions", "Fink.Abstractions\Fink.Abstractions.csproj", "{14EC7563-6F17-47CF-A00B-D7E6ECEC68F4}"
 EndProject

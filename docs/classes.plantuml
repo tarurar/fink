@@ -35,11 +35,11 @@ package "Fink.Abstractions" {
     IPackageDependency::Id *-- PackageIdentity : has
 }
 
-package "Fink.NuGet" {
+package "Fink.Integrations.NuGet" {
 
 }
 note "Package implements abstractions" as N1
-"Fink.NuGet"..N1
+"Fink.Integrations.NuGet"..N1
 
 package "Fink.Console" {
 
