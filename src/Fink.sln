@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink", "Fink\Fink.csproj", "{0B6FFE28-25E7-4779-B36B-A4C770ED1693}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Tests", "Fink.Tests\Fink.Tests.csproj", "{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.NuGet", "Fink.Integrations.NuGet\Fink.Integrations.NuGet.csproj", "{FB26CED4-1293-4DD5-AD2B-C8158951D07F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions", "Fink.Abstractions\Fink.Abstractions.csproj", "{14EC7563-6F17-47CF-A00B-D7E6ECEC68F4}"
@@ -14,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Console", "Fink.Console\Fink.Console.csproj", "{1BB98D18-F1BC-4F7A-8FA1-C55E2910F549}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.Buildalyzer", "Fink.Integrations.Buildalyzer\Fink.Integrations.Buildalyzer.csproj", "{0D75D2FB-AA04-4ABF-AC76-99AC9DDA1071}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions.Tests", "Fink.Abstractions.Tests\Fink.Abstractions.Tests.csproj", "{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +28,6 @@ Global
 		{0B6FFE28-25E7-4779-B36B-A4C770ED1693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B6FFE28-25E7-4779-B36B-A4C770ED1693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B6FFE28-25E7-4779-B36B-A4C770ED1693}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1BED52E-E2BF-4CCC-8094-D8D26EDD7C05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB26CED4-1293-4DD5-AD2B-C8158951D07F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB26CED4-1293-4DD5-AD2B-C8158951D07F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB26CED4-1293-4DD5-AD2B-C8158951D07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,5 +44,9 @@ Global
 		{0D75D2FB-AA04-4ABF-AC76-99AC9DDA1071}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D75D2FB-AA04-4ABF-AC76-99AC9DDA1071}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D75D2FB-AA04-4ABF-AC76-99AC9DDA1071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
