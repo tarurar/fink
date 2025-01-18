@@ -3,6 +3,7 @@ root = true
 # All files
 [*]
 indent_style = space
+max_line_length = 100
 
 # Xml files
 [*.xml]
@@ -64,6 +65,9 @@ dotnet_style_prefer_inferred_tuple_names = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
 dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
+dotnet_style_prefer_inlined_variable_declaration = true:suggestion
+dotnet_style_prefer_compound_linq = true:suggestion
+dotnet_style_namespace_match_folder = true:suggestion
 
 # Field preferences
 dotnet_style_readonly_field = true:warning
@@ -137,6 +141,8 @@ csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_open_brace = all
 csharp_new_line_between_query_expression_clauses = true
+csharp_new_line_between_method_parameters = true
+csharp_new_line_between_arguments = true
 
 # Indentation preferences
 csharp_indent_block_contents = true
@@ -173,6 +179,7 @@ csharp_space_between_square_brackets = false
 # Wrapping preferences
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
+csharp_preserve_newline_in_multi_line_expressions_and_statements = true
 
 #### Naming styles ####
 [*.{cs,vb}]
@@ -370,3 +377,10 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 dotnet_diagnostic.IDE0210.severity = none
 # Ignore missing XML documentation warning
 dotnet_diagnostic.CS1591.severity = none
+
+# Disable CA1707 for test files (using underscores in test method names)
+[**/Fink.Abstractions.Tests/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+# Disable CA1515 for test fixtures (as they are usually injected into public constructors)
+[**/Fink.Abstractions.Tests/*Fixture.cs]
+dotnet_diagnostic.CA1515.severity = none
