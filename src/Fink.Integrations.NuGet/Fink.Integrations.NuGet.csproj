@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.ProjectModel" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fink.Abstractions\Fink.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

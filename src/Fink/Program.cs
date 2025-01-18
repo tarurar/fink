@@ -1,7 +1,13 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 using System.Resources;
 
-using Buildalyzer;
+using Fink.Abstractions;
+
+using Fink.Integrations.Buildalyzer;
+using Fink.Integrations.NuGet;
+
+using NuGet.ProjectModel;
 
 namespace Fink;
 
@@ -23,40 +29,53 @@ internal sealed class Program
             return;
         }
 
-        AnalyzerManager manager = new();
-        IProjectAnalyzer project = manager.GetProject(args[0]);
-        Console.WriteLine(
-                    rm.GetString("BuildingProjectFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
-                    project.ProjectFile.Path);
-        foreach (IAnalyzerResult buildResult in project.Build().Where(r => r.TargetFramework != null))
+        IEnumerable<DotNetProjectBuildResult> results = DotNetProjectBuilder.Build(
+            args[0],
+            new Abstractions.Environment(
+                string.Empty,
+                ImmutableDictionary<string, string>.Empty),
+            new BuildalyzerBuildOptions(
+                string.Empty,
+                [args[1]], // TODO: !!!
+                ImmutableList<string>.Empty,
+                ImmutableList<string>.Empty));
+        // ImmutableList.Create(
+        //     "/p:BaseOutputPath=/Users/atarutin/RiderProjects/bookkeeper/src/BookKeeper/xxx_bin/",
+        //     "/p:BaseIntermediateOutputPath=/Users/atarutin/RiderProjects/bookkeeper/src/BookKeeper/xxx_obj/")));
+
+        DotNetProjectBuildResult result = results.First(); //TODO: !!!!
+
+        if (result is DotNetProjectBuildError buildError)
         {
-            Console.WriteLine(
-                rm.GetString("BuildingResultsFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
-                buildResult.TargetFramework);
+            Console.WriteLine(rm.GetString("BuildFailed", CultureInfo.InvariantCulture));
+            Console.WriteLine(buildError.BuildLog);
+            return;
+        }
 
-            string messageResourceName = buildResult.Succeeded switch
-            {
-                true => "BuildSucceeded",
-                false => "BuildFailed"
-            };
-            Console.WriteLine(rm.GetString(messageResourceName, CultureInfo.InvariantCulture));
+        LockFile lockFile = result.LockFilePath
+            .AssertFilePathExists()
+            .AssertFilePathHasExtension(".json")
+            .ReadLockFile();
 
-            if (buildResult.Succeeded)
+        List<PackageDependency> dependencies = [.. lockFile.GetDependenciesOrThrow(args[1])];
+        List<PackageDependency> distinctDependencies = [.. dependencies.Distinct()];
+
+        IEnumerable<IGrouping<PackageIdentity, PackageDependency>> multipleVersionDependencies = [.. distinctDependencies
+            .GroupBy(d => d.Id)
+            .Where(g => g.Count() > 1)];
+
+        Console.WriteLine(rm.GetString("BuildSucGceeded", CultureInfo.InvariantCulture));
+        Console.WriteLine($"Lock file path: {lockFile.Path}");
+        Console.WriteLine($"Number of dependencies: {dependencies.Count}");
+        Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
+        Console.WriteLine($"Number of dependencies with multiple versions: {multipleVersionDependencies.Count()}");
+        foreach (IGrouping<PackageIdentity, PackageDependency> group in multipleVersionDependencies)
+        {
+            Console.WriteLine($"Package {group.Key} has {group.Count()} versions:");
+            foreach (PackageDependency dependency in group)
             {
-                Console.WriteLine(
-                    rm.GetString("ProjectPropertiesTitle", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException());
-                foreach (KeyValuePair<string, string> kvp in buildResult.Properties)
-                {
-                    Console.WriteLine(
-                        rm.GetString("ProjectPropertyLineFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
-                        kvp.Key,
-                        kvp.Value);
-                }
-                Console.WriteLine(
-                rm.GetString("ProjectAssetsFileFmt", CultureInfo.InvariantCulture) ?? throw new InvalidOperationException(),
-                buildResult.GetProperty("ProjectAssetsFile") ?? "N/A");
+                Console.WriteLine($"  {dependency.MajorVersion}");
             }
         }
-        Console.WriteLine(project.ProjectFile.Path);
     }
 }
