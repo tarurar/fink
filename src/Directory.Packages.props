@@ -6,6 +6,7 @@
     <PackageVersion Include="Buildalyzer" Version="7.1.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
+    <PackageVersion Include="FsCheck.Xunit" Version="3.0.0" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.12.6" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
