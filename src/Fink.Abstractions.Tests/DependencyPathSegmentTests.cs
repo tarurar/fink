@@ -28,7 +28,7 @@ public class DependencyPathSegmentTests
     [Fact]
     public void ToString_Returns_Name()
     {
-        Prop.ForAll<NonEmptyString>(name =>
+        Prop.ForAll<NonWhiteSpaceString>(name =>
         {
             DependencyPathSegment segment = new(name.Get);
 
