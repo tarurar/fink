@@ -57,11 +57,11 @@ internal sealed class Program
             .AssertFilePathHasExtension(".json")
             .ReadLockFile();
 
-        List<PackageDependency> dependencies = [.. lockFile.GetDependenciesOrThrow(args[1])];
-        List<PackageDependency> distinctDependencies = [.. dependencies.Distinct()];
+        List<Dependency> dependencies = [.. lockFile.GetDependenciesOrThrow(args[1])];
+        List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
 
-        IEnumerable<IGrouping<PackageIdentity, PackageDependency>> multipleVersionDependencies = [.. distinctDependencies
-            .GroupBy(d => d.Id)
+        IEnumerable<IGrouping<DependencyName, Dependency>> multipleVersionDependencies = [.. distinctDependencies
+            .GroupBy(d => d.Name)
             .Where(g => g.Count() > 1)];
 
         Console.WriteLine(rm.GetString("BuildSucGceeded", CultureInfo.InvariantCulture));
@@ -69,12 +69,12 @@ internal sealed class Program
         Console.WriteLine($"Number of dependencies: {dependencies.Count}");
         Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
         Console.WriteLine($"Number of dependencies with multiple versions: {multipleVersionDependencies.Count()}");
-        foreach (IGrouping<PackageIdentity, PackageDependency> group in multipleVersionDependencies)
+        foreach (IGrouping<DependencyName, Dependency> group in multipleVersionDependencies)
         {
             Console.WriteLine($"Package {group.Key} has {group.Count()} versions:");
-            foreach (PackageDependency dependency in group)
+            foreach (Dependency dependency in group)
             {
-                Console.WriteLine($"  {dependency.MajorVersion}");
+                Console.WriteLine($"  {dependency.Version} (Path: {dependency.Path})");
             }
         }
     }

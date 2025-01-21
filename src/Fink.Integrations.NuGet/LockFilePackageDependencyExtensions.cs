@@ -1,14 +1,20 @@
-using PackageDependency = NuGet.Packaging.Core.PackageDependency;
+using Fink.Abstractions;
+
+using NuGet.Versioning;
+
+using NuGetPackageDependency = NuGet.Packaging.Core.PackageDependency;
 
 namespace Fink.Integrations.NuGet;
 
 internal static class LockFilePackageDependencyExtensions
 {
-    public static int GetMajorVersionOrThrow(this PackageDependency dependency) =>
-        dependency.VersionRange.GetMajorVersionOrThrow();
+    public static Dependency MapOrThrow(this NuGetPackageDependency dependency, Dependency parentDependency) =>
+        new(
+            new DependencyName(dependency.Id),
+            dependency.VersionRange.GetVersionOrThrow(),
+            parentDependency);
 
-    public static Abstractions.PackageDependency MapOrThrow(this PackageDependency dependency) =>
-        new NuGetPackageMajorDependency(
-            new Abstractions.PackageIdentity(dependency.Id),
-            new Abstractions.PackageMajorVersion(dependency.GetMajorVersionOrThrow()));
+    public static DependencyVersion GetVersionOrThrow(this VersionRange versionRange) =>
+        new(versionRange.OriginalString
+            ?? throw new InvalidOperationException("Version range original string is null."));
 }

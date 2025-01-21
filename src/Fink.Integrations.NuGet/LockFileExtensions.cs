@@ -6,7 +6,7 @@ namespace Fink.Integrations.NuGet;
 
 public static class LockFileExtensions
 {
-    public static IEnumerable<PackageDependency> GetDependenciesOrThrow(this LockFile lockFile, string targetFramework)
+    public static IEnumerable<Dependency> GetDependenciesOrThrow(this LockFile lockFile, string targetFramework)
     {
         ArgumentNullException.ThrowIfNull(lockFile, nameof(lockFile));
 
@@ -15,11 +15,17 @@ public static class LockFileExtensions
             .GetDependenciesOrThrow() ?? [];
     }
 
-    internal static IEnumerable<PackageDependency> GetDependenciesOrThrow(this LockFileTarget targetFramework) =>
-        targetFramework.Libraries
-            .SelectMany(l =>
-                l.GetDependenciesOrThrow().Append(l.MapOrThrow()));
+    internal static IEnumerable<Dependency> GetDependenciesOrThrow(this LockFileTarget target)
+    {
+        Dependency frameworkDependency = new(new DependencyName(target.Name));
 
-    internal static IEnumerable<PackageDependency> GetDependenciesOrThrow(this LockFileTargetLibrary library) =>
-        library.Dependencies.Select(LockFilePackageDependencyExtensions.MapOrThrow);
+        return target.Libraries.SelectMany(library =>
+        {
+            Dependency libraryDependency = library.MapOrThrow(frameworkDependency);
+
+            return library.Dependencies
+                .Select(d => d.MapOrThrow(libraryDependency))
+                .Append(libraryDependency);
+        });
+    }
 }
