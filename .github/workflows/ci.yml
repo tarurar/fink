@@ -28,7 +28,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          dotnet build ./src/Fink.sln
+          dotnet build ./src/Fink.sln /warnaserror
 
       - name: Test
         run: dotnet test ./src/Fink.sln --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
