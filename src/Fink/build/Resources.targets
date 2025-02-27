@@ -1,9 +1,57 @@
-<Project>
-    <Target Name="GenerateResources" BeforeTargets="BeforeCompile" Inputs="Resources.txt" Outputs="Resources.resources">
-        <Exec Command="resgen Resources.txt Resources.resources" />
-    </Target>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <UsingTask TaskName="GenerateResourceTask"
+        TaskFactory="RoslynCodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <SourceFile ParameterType="System.String" Required="true" />
+            <OutputFile ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Resources" />
+            <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          try
+          {
+              using (var writer = new ResourceWriter(OutputFile))
+              {
+                  foreach (var line in File.ReadAllLines(SourceFile))
+                  {
+                      var trimmed = line.Trim();
+                      if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#") || trimmed.StartsWith(";"))
+                          continue;
+                      var parts = trimmed.Split(new char[] { '=' }, 2);
+                      if (parts.Length != 2)
+                          continue;
+                      writer.AddResource(parts[0].Trim(), parts[1].Trim());
+                  }
+                  writer.Generate();
+              }
+              return true;
+          }
+          catch (Exception ex)
+          {
+              Log.LogErrorFromException(ex);
+              return false;
+          }
+        ]]>
+      </Code>
+        </Task>
+    </UsingTask>
 
     <ItemGroup>
-        <EmbeddedResource Include="Resources.resources" />
+        <TextResource Include="Resources.txt" />
     </ItemGroup>
+
+    <Target Name="GenerateBinaryResources" BeforeTargets="BeforeCompile"
+        Inputs="@(TextResource)"
+        Outputs="%(TextResource.Filename).resources">
+        <GenerateResourceTask SourceFile="Resources.txt" OutputFile="%(TextResource.Filename).resources" />
+        <ItemGroup>
+            <EmbeddedResource Include="%(TextResource.Filename).resources" />
+        </ItemGroup>
+    </Target>
+
 </Project>
