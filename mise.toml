@@ -1,0 +1,81 @@
+[settings]
+experimental = true
+verbose = false
+
+[tools]
+dotnet = "9.0"
+
+[env]
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_NOLOGO = "1"
+DOTNET_SKIP_FIRST_TIME_EXPERIENCE = "1"
+DOTNET_ReadyToRun = "0"
+DOTNET_TC_QuickJitForLoops = "1"
+ASPNETCORE_ENVIRONMENT = "Development"
+DOTNET_WATCH_RESTART_ON_RUDE_EDIT = "1"
+
+[tasks.find-solution]
+description = "Finds the solution file in the project directory"
+quiet = true
+hide = true
+run = '''
+set -e
+
+SOLUTION_FILE=$(find . -maxdepth 3 -name "*.sln" -print -quit)
+
+if [ -z "$SOLUTION_FILE" ]; then
+  echo "❌ No .sln file found in project directory" >&2
+  exit 1
+fi
+
+echo "🔍 Found solution file: $SOLUTION_FILE" >&2
+echo "$SOLUTION_FILE"
+'''
+
+[tasks.build]
+description = "Builds the .NET solution"
+quiet = true
+run = '''
+set -e
+
+SOLUTION_FILE=$(mise run find-solution)
+
+dotnet build "$SOLUTION_FILE" \
+    /property:Configuration=Debug \
+    /property:GenerateFullPaths=true \
+    /consoleloggerparameters:NoSummary \
+    /property:GenerateDocumentation=false \
+    /property:IsLocalBuild=true \
+    /warnaserror
+'''
+
+[tasks.coverage]
+depends = ["build"]
+description = "Runs tests and collects code coverage"
+quiet = true
+run = '''
+set -e
+
+SOLUTION_FILE=$(mise run find-solution)
+
+dotnet test "$SOLUTION_FILE" \
+    /property:GenerateFullPaths=true \
+    /consoleloggerparameters:NoSummary \
+    /property:CollectCoverage=true \
+    /property:CoverletOutput=../CoverageResults/ \
+    /property:MergeWith=../CoverageResults/coverage.json \
+    /property:CoverletOutputFormat=\"lcov,json\" \
+    -m:1
+'''
+
+[tasks.test]
+depends = ["build"]
+description = "Runs the .NET tests"
+quiet = true
+run = '''
+set -e
+
+SOLUTION_FILE=$(mise run find-solution)
+
+dotnet test "$SOLUTION_FILE"
+'''
