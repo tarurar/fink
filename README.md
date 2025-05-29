@@ -2,6 +2,10 @@
 
 ![CI](https://github.com/tarurar/fink/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
+[![GitHub release](https://img.shields.io/github/v/release/tarurar/fink)](https://github.com/tarurar/fink/releases)
+[![GitHub issues](https://img.shields.io/github/issues/tarurar/fink)](https://github.com/tarurar/fink/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/tarurar/fink)](https://github.com/tarurar/fink/pulls)
 
 Welcome to **Fink** - a powerful .NET tool designed to analyze and identify dependency version conflicts in your projects! 🚀
 
@@ -9,7 +13,7 @@ Welcome to **Fink** - a powerful .NET tool designed to analyze and identify depe
 
 Fink is a specialized tool that helps you manage and troubleshoot NuGet package dependencies in .NET projects. It focuses on:
 
-- 🔍 Detecting multiple versions of the same package in your dependency tree
+- 🔍 Detecting multiple versions of **the** same package in your dependency tree
 - 📈 Visualizing dependency paths to understand how conflicts occur
 - 🛠️ Building projects with customizable options to analyze dependencies accurately
 
@@ -72,6 +76,36 @@ Package Newtonsoft.Json has 2 versions:
   12.0.3 (Path: net9.0->SomePackage 2.0.0->Newtonsoft.Json 12.0.3)
 ...
 ```
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+### Development Setup
+
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch: `git checkout -b feature/your-feature-name`
+4. **Install** dependencies: `dotnet restore`
+5. **Build** the project: `dotnet build`
+6. **Run tests**: `dotnet test`
+
+### Pull Request Process
+
+1. Ensure your code follows the project's coding standards
+2. Add tests for new functionality
+3. Update documentation as needed
+4. Ensure all CI checks pass:
+   - ✅ Build and Test
+   - ✅ Security Scan (CodeQL + Vulnerability Analysis)
+   - ✅ Deprecated Package Detection
+   - ✅ Code Coverage Report
+
+### Code Quality Standards
+
+- **Test Coverage**: Maintained with comprehensive unit tests
+- **Security**: All dependencies scanned for vulnerabilities
+- **Code Analysis**: Warnings treated as errors
+- **Documentation**: Keep README and code comments up to date
 
 ## 🔧 Tech Info
 
@@ -93,15 +127,15 @@ Fink follows a modular, domain-driven design:
 - **Testing**: xUnit with FsCheck for property-based testing
 - **CI/CD**: GitHub Actions for continuous integration
 
-### Development
+### CI/CD Pipeline
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes with tests
-4. Run the tests with `dotnet test`
-5. Submit a pull request
-
-The project uses strict code analysis and treats warnings as errors to maintain high code quality.
+Our GitHub Actions workflow includes:
+- **Automated Building & Testing** on every PR and push
+- **Code Coverage Reports** with detailed metrics
+- **Security Scanning** with CodeQL analysis
+- **Vulnerability Detection** for all dependencies
+- **Deprecated Package Detection** to maintain dependency health
+- **Test Result Publishing** with detailed reporting
 
 ### Requirements
 
@@ -109,6 +143,12 @@ The project uses strict code analysis and treats warnings as errors to maintain 
 - Compatible with Windows, macOS, and Linux
 
 Fink is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🐛 Issues & Support
+
+- **Bug Reports**: [Create an issue](https://github.com/tarurar/fink/issues/new?template=bug_report.md)
+- **Feature Requests**: [Create an issue](https://github.com/tarurar/fink/issues/new?template=feature_request.md)
+- **Questions**: [Start a discussion](https://github.com/tarurar/fink/discussions)
 
 ---
 
