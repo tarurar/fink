@@ -174,12 +174,3 @@ jobs:
       - name: Check for deprecated packages
         run: dotnet list ./src/Fink.sln package --deprecated --include-transitive
         continue-on-error: false
-
-  merge-requirements:
-    name: Merge Requirements Check
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    needs: [build, security-scan, deprecated-packages-scan]
-    steps:
-      - name: All checks passed
-        run: echo "All required checks have passed successfully."
