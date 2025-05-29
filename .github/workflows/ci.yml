@@ -123,7 +123,7 @@ jobs:
         run: dotnet restore ./src/Fink.sln
 
       - name: Security audit
-        run: dotnet list package --vulnerable --include-transitive
+        run: dotnet list ./src/Fink.sln package --vulnerable --include-transitive
 
       - name: Run CodeQL Analysis
         uses: github/codeql-action/init@v3
