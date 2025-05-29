@@ -73,6 +73,7 @@ jobs:
           path: |
             **/*.trx
             coverage/**/*
+          retention-days: 30
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
@@ -131,6 +132,7 @@ jobs:
 
       - name: Security audit
         run: dotnet list ./src/Fink.sln package --vulnerable --include-transitive
+        continue-on-error: false
 
       - name: Run CodeQL Analysis
         uses: github/codeql-action/init@v3
@@ -171,3 +173,13 @@ jobs:
 
       - name: Check for deprecated packages
         run: dotnet list ./src/Fink.sln package --deprecated --include-transitive
+        continue-on-error: false
+
+  merge-requirements:
+    name: Merge Requirements Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [build, security-scan, deprecated-packages-scan]
+    steps:
+      - name: All checks passed
+        run: echo "All required checks have passed successfully."
