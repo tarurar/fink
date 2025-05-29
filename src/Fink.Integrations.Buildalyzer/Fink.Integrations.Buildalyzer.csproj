@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <PackageReference Include="Buildalyzer" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" />
     <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
