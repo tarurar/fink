@@ -1,39 +1,89 @@
 name: CI
 
-on: pull_request
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
+  contents: read
   pull-requests: write
+  checks: write
+  statuses: write
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_TC_QuickJitForLoops: true
+  DOTNET_ReadyToRun: false
 
 jobs:
   build:
-    name: Build
+    name: Build and Test
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get tags
-        run: git fetch --tags
-        shell: bash
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            8.0.x
+            9.0.x
+          dotnet-quality: ga
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore ./src/Fink.sln
+        shell: bash
 
       - name: Build
-        shell: bash
         run: |
-          dotnet build ./src/Fink.sln
+          dotnet build ./src/Fink.sln --no-restore --configuration Release
+        shell: bash
 
       - name: Test
-        run: dotnet test ./src/Fink.sln --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: |
+          dotnet test ./src/Fink.sln \
+          --no-build \
+          --configuration Release \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage \
+          --logger trx \
+          --logger "console;verbosity=detailed"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always() # Upload even if tests fail
+        with:
+          name: test-results
+          path: |
+            **/*.trx
+            coverage/**/*
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: "**/*.trx"
+          reporter: dotnet-trx
+          fail-on-error: false
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -46,11 +96,42 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: "10 20"
+          thresholds: "60 80"
 
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+        if: github.event_name == 'pull_request' && !contains(github.actor, 'bot')
         with:
           recreate: true
           path: code-coverage-results.md
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./src/Fink.sln
+
+      - name: Security audit
+        run: dotnet list package --vulnerable --include-transitive
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Build for CodeQL
+        run: dotnet build ./src/Fink.sln --no-restore
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
