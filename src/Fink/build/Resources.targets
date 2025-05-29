@@ -15,20 +15,44 @@
         <![CDATA[
           try
           {
+              if (!File.Exists(SourceFile))
+              {
+                  Log.LogError($"Source file not found: {SourceFile}");
+                  return false;
+              }
+
               using (var writer = new ResourceWriter(OutputFile))
               {
+                  var lineNumber = 0;
                   foreach (var line in File.ReadAllLines(SourceFile))
                   {
+                      lineNumber++;
                       var trimmed = line.Trim();
                       if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#") || trimmed.StartsWith(";"))
                           continue;
+                      
                       var parts = trimmed.Split(new char[] { '=' }, 2);
                       if (parts.Length != 2)
+                      {
+                          Log.LogWarning($"Invalid format at line {lineNumber} in {SourceFile}: {line}");
                           continue;
-                      writer.AddResource(parts[0].Trim(), parts[1].Trim());
+                      }
+                      
+                      var key = parts[0].Trim();
+                      var value = parts[1].Trim();
+                      
+                      if (string.IsNullOrEmpty(key))
+                      {
+                          Log.LogWarning($"Empty key at line {lineNumber} in {SourceFile}: {line}");
+                          continue;
+                      }
+                      
+                      writer.AddResource(key, value);
                   }
                   writer.Generate();
               }
+              
+              Log.LogMessage($"Generated resource file: {OutputFile}");
               return true;
           }
           catch (Exception ex)
@@ -45,12 +69,23 @@
         <TextResource Include="Resources.txt" />
     </ItemGroup>
 
-    <Target Name="GenerateBinaryResources" BeforeTargets="BeforeCompile"
+    <Target Name="GenerateBinaryResources"
+        BeforeTargets="PrepareForBuild"
         Inputs="@(TextResource)"
-        Outputs="%(TextResource.Filename).resources">
-        <GenerateResourceTask SourceFile="Resources.txt" OutputFile="%(TextResource.Filename).resources" />
+        Outputs="@(TextResource->'$(IntermediateOutputPath)%(Filename).resources')">
+
+        <MakeDir Directories="$(IntermediateOutputPath)" Condition="!Exists('$(IntermediateOutputPath)')" />
+
+        <GenerateResourceTask
+            SourceFile="%(TextResource.Identity)"
+            OutputFile="$(IntermediateOutputPath)%(TextResource.Filename).resources" />
+    </Target>
+
+    <Target Name="AddGeneratedResources" AfterTargets="GenerateBinaryResources">
         <ItemGroup>
-            <EmbeddedResource Include="%(TextResource.Filename).resources" />
+            <EmbeddedResource Include="@(TextResource->'$(IntermediateOutputPath)%(Filename).resources')">
+                <LogicalName>Fink.%(TextResource.Filename).resources</LogicalName>
+            </EmbeddedResource>
         </ItemGroup>
     </Target>
 
