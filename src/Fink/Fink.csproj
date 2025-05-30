@@ -12,6 +12,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Fink.Integrations.NuGet\Fink.Integrations.NuGet.csproj" />
     <ProjectReference Include="..\Fink.Integrations.Buildalyzer\Fink.Integrations.Buildalyzer.csproj" />
+    <!-- 
+    This reference is required to ensure that dependency 
+    is built before main project, because it is required to run custom Task
+    from that assembly while building main project.
+    -->
+    <ProjectReference Include="..\Fink.Build\Fink.Build.csproj" />
   </ItemGroup>
 
   <Import Project="build/Resources.targets" />

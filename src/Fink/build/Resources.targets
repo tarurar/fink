@@ -1,69 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <UsingTask TaskName="GenerateResourceTask"
-        TaskFactory="RoslynCodeTaskFactory"
-        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-        <ParameterGroup>
-            <SourceFile ParameterType="System.String" Required="true" />
-            <OutputFile ParameterType="System.String" Required="true" />
-        </ParameterGroup>
-        <Task>
-            <Using Namespace="System" />
-            <Using Namespace="System.IO" />
-            <Using Namespace="System.Resources" />
-            <Code Type="Fragment" Language="cs">
-        <![CDATA[
-          try
-          {
-              if (!File.Exists(SourceFile))
-              {
-                  Log.LogError($"Source file not found: {SourceFile}");
-                  return false;
-              }
-
-              using (var writer = new ResourceWriter(OutputFile))
-              {
-                  var lineNumber = 0;
-                  foreach (var line in File.ReadAllLines(SourceFile))
-                  {
-                      lineNumber++;
-                      var trimmed = line.Trim();
-                      if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#") || trimmed.StartsWith(";"))
-                          continue;
-                      
-                      var parts = trimmed.Split(new char[] { '=' }, 2);
-                      if (parts.Length != 2)
-                      {
-                          Log.LogWarning($"Invalid format at line {lineNumber} in {SourceFile}: {line}");
-                          continue;
-                      }
-                      
-                      var key = parts[0].Trim();
-                      var value = parts[1].Trim();
-                      
-                      if (string.IsNullOrEmpty(key))
-                      {
-                          Log.LogWarning($"Empty key at line {lineNumber} in {SourceFile}: {line}");
-                          continue;
-                      }
-                      
-                      writer.AddResource(key, value);
-                  }
-                  writer.Generate();
-              }
-              
-              Log.LogMessage($"Generated resource file: {OutputFile}");
-              return true;
-          }
-          catch (Exception ex)
-          {
-              Log.LogErrorFromException(ex);
-              return false;
-          }
-        ]]>
-      </Code>
-        </Task>
-    </UsingTask>
+        AssemblyFile="$(MSBuildStartupDirectory)/src/Fink.Build/bin/$(Configuration)/netstandard2.0/Fink.Build.dll" />
 
     <ItemGroup>
         <TextResource Include="Resources.txt" />

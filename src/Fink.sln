@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.Buildalyz
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions.Tests", "Fink.Abstractions.Tests\Fink.Abstractions.Tests.csproj", "{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Build", "Fink.Build\Fink.Build.csproj", "{DB2364D9-FBBA-42A4-9696-4061D83F700A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB2364D9-FBBA-42A4-9696-4061D83F700A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2364D9-FBBA-42A4-9696-4061D83F700A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2364D9-FBBA-42A4-9696-4061D83F700A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2364D9-FBBA-42A4-9696-4061D83F700A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -377,6 +377,8 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 dotnet_diagnostic.IDE0210.severity = none
 # Ignore missing XML documentation warning
 dotnet_diagnostic.CS1591.severity = none
+#  Ignore using var for built-in types warning
+dotnet_diagnostic.IDE0008.severity = none
 
 # Disable CA1707 for test files (using underscores in test method names)
 [**/Fink.Abstractions.Tests/*.cs]
@@ -384,3 +386,5 @@ dotnet_diagnostic.CA1707.severity = none
 # Disable CA1515 for test fixtures (as they are usually injected into public constructors)
 [**/Fink.Abstractions.Tests/*Fixture.cs]
 dotnet_diagnostic.CA1515.severity = none
+[**/Fink.Build/*.cs]
+dotnet_diagnostic.CA1031.severity = none

@@ -3,23 +3,50 @@
         <TargetFramework>net9.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591</WarningsNotAsErrors>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <Authors>Andrei Tarutin</Authors>
         <Copyright>Copyright © Andrei Tarutin 2024</Copyright>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <Nullable>enable</Nullable>
+        <Product>Fink</Product>
         <RepositoryUrl>https://github.com/tarurar/fink</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+    <!-- Deterministic builds -->
+    <PropertyGroup Condition="'$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true' Or '$(TEAMCITY_VERSION)' != ''">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true' Or '$(TEAMCITY_VERSION)' != ''">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" />
+    </ItemGroup>
+
+    <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-        <!-- Configure static code analysis -->
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <!-- Configure static code analysis -->
+    <PropertyGroup>
         <AnalysisLevel>latest</AnalysisLevel>
-        <AnalysisMode>All</AnalysisMode>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <ReportAnalyzer>true</ReportAnalyzer>
     </PropertyGroup>
 </Project>
