@@ -9,6 +9,7 @@
 
     <Target Name="GenerateBinaryResources"
         BeforeTargets="PrepareForBuild"
+        DependsOnTargets="ResolveProjectReferences"
         Inputs="@(TextResource)"
         Outputs="@(TextResource->'$(IntermediateOutputPath)%(Filename).resources')">
 
