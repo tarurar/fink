@@ -64,7 +64,7 @@ internal sealed class Program
             .GroupBy(d => d.Name)
             .Where(g => g.Count() > 1)];
 
-        Console.WriteLine(rm.GetString("BuildSucGceeded", CultureInfo.InvariantCulture));
+        Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
         Console.WriteLine($"Lock file path: {lockFile.Path}");
         Console.WriteLine($"Number of dependencies: {dependencies.Count}");
         Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
