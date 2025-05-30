@@ -1,9 +1,31 @@
-<Project>
-    <Target Name="GenerateResources" BeforeTargets="BeforeCompile" Inputs="Resources.txt" Outputs="Resources.resources">
-        <Exec Command="resgen Resources.txt Resources.resources" />
-    </Target>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <UsingTask TaskName="GenerateResourceTask"
+        AssemblyFile="$(MSBuildStartupDirectory)/src/Fink.Build/bin/$(Configuration)/netstandard2.0/Fink.Build.dll" />
 
     <ItemGroup>
-        <EmbeddedResource Include="Resources.resources" />
+        <TextResource Include="Resources.txt" />
     </ItemGroup>
+
+    <Target Name="GenerateBinaryResources"
+        BeforeTargets="PrepareForBuild"
+        DependsOnTargets="ResolveProjectReferences"
+        Inputs="@(TextResource)"
+        Outputs="@(TextResource->'$(IntermediateOutputPath)%(Filename).resources')">
+
+        <MakeDir Directories="$(IntermediateOutputPath)" Condition="!Exists('$(IntermediateOutputPath)')" />
+
+        <GenerateResourceTask
+            SourceFile="%(TextResource.Identity)"
+            OutputFile="$(IntermediateOutputPath)%(TextResource.Filename).resources" />
+    </Target>
+
+    <Target Name="AddGeneratedResources" AfterTargets="GenerateBinaryResources">
+        <ItemGroup>
+            <EmbeddedResource Include="@(TextResource->'$(IntermediateOutputPath)%(Filename).resources')">
+                <LogicalName>Fink.%(TextResource.Filename).resources</LogicalName>
+            </EmbeddedResource>
+        </ItemGroup>
+    </Target>
+
 </Project>
