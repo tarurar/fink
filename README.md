@@ -7,7 +7,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/tarurar/fink)](https://github.com/tarurar/fink/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/tarurar/fink)](https://github.com/tarurar/fink/pulls)
 
-Welcome to **Fink** - a powerful .NET tool designed to analyze and identify dependency version conflicts in your projects! 🚀
+Welcome to **Fink** - a .NET tool designed to analyze and identify dependency version conflicts in your projects! 🚀
 
 ## 📚 Summary of Project
 
@@ -30,7 +30,7 @@ Fink helps you solve the "dependency hell" problem by providing clear insights i
 ### Prerequisites
 
 - .NET 9.0 SDK or later
-- A .NET project with NuGet dependencies
+- A .NET 5.x+ project with NuGet dependencies
 
 ### Installation
 
@@ -59,10 +59,10 @@ dotnet run --project src/Fink/Fink.csproj ~/Projects/MyApp/MyApp.csproj net9.0
 ### Understanding the Output
 
 Fink will:
-1. Build your project to generate an up-to-date `project.assets.json` file
-2. Analyze the dependencies
-3. Report any packages that have multiple versions in use
-4. Show the dependency paths that lead to each version
+1. Build your project to generate an up-to-date `project.assets.json` file. It makes design time build, not runtime one.
+2. Analyze the dependencies.
+3. Report any packages that have multiple versions in use.
+4. Show the dependency paths that lead to each version.
 
 Example output:
 ```
@@ -78,16 +78,15 @@ Package Newtonsoft.Json has 2 versions:
 ```
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help:
+I welcome contributions! Here's how you can help:
 
 ### Development Setup
 
-1. **Fork** the repository
-2. **Clone** your fork locally
-3. **Create** a feature branch: `git checkout -b feature/your-feature-name`
-4. **Install** dependencies: `dotnet restore`
-5. **Build** the project: `dotnet build`
-6. **Run tests**: `dotnet test`
+1. **Clone** the repository locally
+2. **Create** a feature branch: `git checkout -b feature/your-feature-name`
+3. **Install** dependencies: `dotnet restore`
+4. **Build** the project: `dotnet build`
+5. **Run tests**: `dotnet test`
 
 ### Pull Request Process
 
@@ -129,7 +128,7 @@ Fink follows a modular, domain-driven design:
 
 ### CI/CD Pipeline
 
-Our GitHub Actions workflow includes:
+GitHub Actions workflow includes:
 - **Automated Building & Testing** on every PR and push
 - **Code Coverage Reports** with detailed metrics
 - **Security Scanning** with CodeQL analysis
@@ -139,8 +138,7 @@ Our GitHub Actions workflow includes:
 
 ### Requirements
 
-- .NET 9.0 SDK (specified in global.json)
-- Compatible with Windows, macOS, and Linux
+- .NET 9.0 SDK
 
 Fink is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
