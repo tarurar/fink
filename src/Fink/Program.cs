@@ -83,7 +83,7 @@ internal sealed class Program
         List<Dependency> dependencies = [.. lockFile.GetDependenciesOrThrow(targetFramework)];
         List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
 
-        IEnumerable<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
+        List<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
         [
             .. distinctDependencies
                 .GroupBy(d => d.Name)
@@ -95,9 +95,9 @@ internal sealed class Program
         Console.WriteLine($"Number of dependencies: {dependencies.Count}");
         Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
         Console.WriteLine(
-            $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count()}");
+            $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count}");
 
-        bool hasConflicts = multipleVersionDependencies.Any();
+        bool hasConflicts = multipleVersionDependencies.Count > 0;
 
         if (hasConflicts)
         {
