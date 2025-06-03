@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Resources;
 
 using Fink.Abstractions;
-
 using Fink.Integrations.Buildalyzer;
 using Fink.Integrations.NuGet;
 
@@ -13,43 +12,67 @@ namespace Fink;
 
 internal sealed class Program
 {
-    private static void Main(string[] args)
+    private static int Main(string[] args) => RunApplication(args);
+
+    private static int RunApplication(string[] args)
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        if (args.Length == 0)
+        var validationResult = ValidateArguments(args);
+        if (validationResult != ExitCodes.Success)
         {
-            Console.WriteLine(rm.GetString("UsageMessage", CultureInfo.InvariantCulture));
-            return;
+            PrintValidationErrorMessage(validationResult, rm);
+            return validationResult;
         }
 
-        if (!args[0].EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase))
-        {
-            Console.WriteLine(rm.GetString("InvalidFileExtension", CultureInfo.InvariantCulture));
-            return;
-        }
+        string projectPath = args[0];
+        string targetFramework = args[1];
 
+        return AnalyzeDependencies(projectPath, targetFramework, rm);
+    }
+
+    private static int ValidateArguments(string[] args) => args switch
+    {
+        { Length: not 2 } => ExitCodes.UsageError,
+        _ when !File.Exists(args[0]) => ExitCodes.InputFileNotFound,
+        _ => ExitCodes.Success
+    };
+
+    private static void PrintValidationErrorMessage(int errorCode, ResourceManager rm)
+    {
+        Console.WriteLine(errorCode switch
+        {
+            ExitCodes.UsageError =>
+                rm.GetString("UsageMessage", CultureInfo.InvariantCulture),
+            ExitCodes.InputFileNotFound =>
+                rm.GetString("ProjectFileNotFound", CultureInfo.InvariantCulture),
+            _ => throw new InvalidOperationException($"{errorCode} is not a validation error code")
+        });
+    }
+
+    private static int AnalyzeDependencies(
+        string projectPath,
+        string targetFramework,
+        ResourceManager rm)
+    {
         IEnumerable<DotNetProjectBuildResult> results = DotNetProjectBuilder.Build(
-            args[0],
+            projectPath,
             new Abstractions.Environment(
                 string.Empty,
                 ImmutableDictionary<string, string>.Empty),
             new BuildalyzerBuildOptions(
                 string.Empty,
-                [args[1]], // TODO: !!!
+                [targetFramework],
                 ImmutableList<string>.Empty,
                 ImmutableList<string>.Empty));
-        // ImmutableList.Create(
-        //     "/p:BaseOutputPath=/Users/atarutin/RiderProjects/bookkeeper/src/BookKeeper/xxx_bin/",
-        //     "/p:BaseIntermediateOutputPath=/Users/atarutin/RiderProjects/bookkeeper/src/BookKeeper/xxx_obj/")));
 
-        DotNetProjectBuildResult result = results.First(); //TODO: !!!!
+        DotNetProjectBuildResult result = results.First();
 
         if (result is DotNetProjectBuildError buildError)
         {
             Console.WriteLine(rm.GetString("BuildFailed", CultureInfo.InvariantCulture));
             Console.WriteLine(buildError.BuildLog);
-            return;
+            return ExitCodes.InternalError;
         }
 
         LockFile lockFile = result.LockFilePath
@@ -57,25 +80,41 @@ internal sealed class Program
             .AssertFilePathHasExtension(".json")
             .ReadLockFile();
 
-        List<Dependency> dependencies = [.. lockFile.GetDependenciesOrThrow(args[1])];
+        List<Dependency> dependencies = [.. lockFile.GetDependenciesOrThrow(targetFramework)];
         List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
 
-        IEnumerable<IGrouping<DependencyName, Dependency>> multipleVersionDependencies = [.. distinctDependencies
-            .GroupBy(d => d.Name)
-            .Where(g => g.Count() > 1)];
+        IEnumerable<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
+        [
+            .. distinctDependencies
+                .GroupBy(d => d.Name)
+                .Where(g => g.Count() > 1)
+        ];
 
         Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
         Console.WriteLine($"Lock file path: {lockFile.Path}");
         Console.WriteLine($"Number of dependencies: {dependencies.Count}");
         Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
-        Console.WriteLine($"Number of dependencies with multiple versions: {multipleVersionDependencies.Count()}");
-        foreach (IGrouping<DependencyName, Dependency> group in multipleVersionDependencies)
+        Console.WriteLine(
+            $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count()}");
+
+        bool hasConflicts = multipleVersionDependencies.Any();
+
+        if (hasConflicts)
         {
-            Console.WriteLine($"Package {group.Key} has {group.Count()} versions:");
-            foreach (Dependency dependency in group)
+            Console.WriteLine(rm.GetString("ConflictsFound", CultureInfo.InvariantCulture));
+            foreach (IGrouping<DependencyName, Dependency> group in multipleVersionDependencies)
             {
-                Console.WriteLine($"  {dependency.Version} (Path: {dependency.Path})");
+                Console.WriteLine($"Package {group.Key} has {group.Count()} versions:");
+                foreach (Dependency dependency in group)
+                {
+                    Console.WriteLine($"  {dependency.Version} (Path: {dependency.Path})");
+                }
             }
+
+            return ExitCodes.ConflictsDetected;
         }
+
+        Console.WriteLine(rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture));
+        return ExitCodes.Success;
     }
 }
