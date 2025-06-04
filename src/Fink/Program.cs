@@ -18,43 +18,31 @@ internal sealed class Program
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        var validationResult = ValidateArguments(args);
-        if (validationResult != ExitCodes.Success)
+        ExecutionResult executionResult = args.Validate() switch
         {
-            PrintValidationErrorMessage(validationResult, rm);
-            return validationResult;
-        }
+            ArgsValidationError error => error,
+            _ => AnalyzeDependencies(args[0], args[1], rm)
+        };
 
-        string projectPath = args[0];
-        string targetFramework = args[1];
+        LogExecutionResult(executionResult);
 
-        return AnalyzeDependencies(projectPath, targetFramework, rm);
+        return executionResult switch
+        {
+            IExitCodeProvider provider => provider.ExitCode,
+            _ => ExitCodes.Success
+        };
     }
 
-    private static int ValidateArguments(string[] args) => args switch
-    {
-        { Length: not 2 } => ExitCodes.UsageError,
-        _ when !File.Exists(args[0]) => ExitCodes.InputFileNotFound,
-        _ => ExitCodes.Success
-    };
+    private static void LogExecutionResult(ExecutionResult executionResult) =>
+        Console.WriteLine($"Execution result: {executionResult}");
 
-    private static void PrintValidationErrorMessage(int errorCode, ResourceManager rm)
-    {
-        Console.WriteLine(errorCode switch
-        {
-            ExitCodes.UsageError =>
-                rm.GetString("UsageMessage", CultureInfo.InvariantCulture),
-            ExitCodes.InputFileNotFound =>
-                rm.GetString("ProjectFileNotFound", CultureInfo.InvariantCulture),
-            _ => throw new InvalidOperationException($"{errorCode} is not a validation error code")
-        });
-    }
-
-    private static int AnalyzeDependencies(
+    private static AnalyzeDependenciesResult AnalyzeDependencies(
         string projectPath,
         string targetFramework,
         ResourceManager rm)
     {
+        // todo: remove printing to console, return results with data enough to print'em later
+
         IEnumerable<DotNetProjectBuildResult> results = DotNetProjectBuilder.Build(
             projectPath,
             new Abstractions.Environment(
@@ -72,7 +60,7 @@ internal sealed class Program
         {
             Console.WriteLine(rm.GetString("BuildFailed", CultureInfo.InvariantCulture));
             Console.WriteLine(buildError.BuildLog);
-            return ExitCodes.InternalError;
+            return new BuildFailedError();
         }
 
         LockFile lockFile = result.LockFilePath
@@ -111,10 +99,10 @@ internal sealed class Program
                 }
             }
 
-            return ExitCodes.ConflictsDetected;
+            return new ConflictsDetectedError();
         }
 
         Console.WriteLine(rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture));
-        return ExitCodes.Success;
+        return new AnalyzeDependenciesSuccess();
     }
 }

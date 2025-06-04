@@ -1,6 +1,6 @@
 BuildFailed=Build failed
 BuildSucceeded=Build succeeded
 UsageMessage=Usage: fink <project> <target-framework>
-ProjectFileNotFound=Project file not found
+ProjectFileNotFoundFmt=Project file not found: {0}
 ConflictsFound=Dependency version conflicts detected
 NoConflictsFound=No dependency version conflicts found
