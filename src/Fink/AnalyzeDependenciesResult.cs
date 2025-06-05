@@ -2,7 +2,7 @@ namespace Fink;
 
 internal abstract record AnalyzeDependenciesResult : ExecutionResult;
 
-internal abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IExitCodeProvider
+internal abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IErrorExecutionResult
 {
     public abstract int ExitCode { get; }
 }
