@@ -19,6 +19,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fink.Abstractions\Fink.Abstractions.csproj" />
+    <!-- Fink root project reference is added to force 
+    compiler put all Fink assemblies into the test output directory.
+    This is needed for one of the tests to check for correct usage
+    of ExecutionResult record. -->
+    <ProjectReference Include="..\Fink\Fink.csproj" />
   </ItemGroup>
 
 </Project>

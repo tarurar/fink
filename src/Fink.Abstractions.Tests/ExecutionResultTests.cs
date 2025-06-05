@@ -13,21 +13,19 @@ public class ExecutionResultTests
     [Fact]
     public void AllNonAbstractExecutionResultDescendants_ShouldImplementRequiredInterfaces()
     {
-        Assembly[] finkAssemblies = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Where(a => !a.IsDynamic)
-            .Where(a =>
-                a.GetName().Name?.StartsWith("Fink", StringComparison.OrdinalIgnoreCase) ?? true)
-            .ToArray();
+        var assemblyDirectory =
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+            ?? throw new InvalidOperationException("Could not determine assembly directory.");
+
+        List<Assembly> finkAssemblies =
+            [.. Directory.GetFiles(assemblyDirectory, "Fink*.dll").Select(Assembly.LoadFrom)];
 
         List<Type> nonAbstractDescendants = [];
-        foreach (var assembly in finkAssemblies)
+        foreach (var descedantsInAssembly in finkAssemblies.Select(assembly => assembly.GetTypes()
+                     .Where(type => type.IsSubclassOf(ExecutionResultType))
+                     .Where(type => !type.IsAbstract)
+                     .ToList()))
         {
-            var descedantsInAssembly = assembly.GetTypes()
-                .Where(type => type.IsSubclassOf(ExecutionResultType))
-                .Where(type => !type.IsAbstract)
-                .ToList();
-
             nonAbstractDescendants.AddRange(descedantsInAssembly);
         }
 
