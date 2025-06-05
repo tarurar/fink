@@ -2,10 +2,8 @@ namespace Fink;
 
 internal abstract record ExecutionResult;
 
-internal interface ISuccessExecutionResult
-{
-}
+// marker interface
+internal interface ISuccessExecutionResult;
 
-internal interface IErrorExecutionResult : IExitCodeProvider
-{
-}
+// marker interface
+internal interface IErrorExecutionResult : IExitCodeProvider;
