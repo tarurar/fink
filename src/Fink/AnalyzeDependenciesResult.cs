@@ -12,9 +12,4 @@ internal sealed record ConflictsDetectedError : AnalyzeDependenciesError
     public override int ExitCode => ExitCodes.ConflictsDetected;
 }
 
-internal sealed record BuildFailedError : AnalyzeDependenciesError
-{
-    public override int ExitCode => ExitCodes.InternalError;
-}
-
 internal sealed record AnalyzeDependenciesSuccess : AnalyzeDependenciesResult;

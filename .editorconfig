@@ -388,3 +388,6 @@ dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1515.severity = none
 [**/Fink.Build/*.cs]
 dotnet_diagnostic.CA1031.severity = none
+# Disable IDE0055 (formatting)
+[*.cs]
+dotnet_diagnostic.IDE0055.severity = none

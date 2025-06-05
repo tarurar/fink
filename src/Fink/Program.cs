@@ -6,8 +6,6 @@ using Fink.Abstractions;
 using Fink.Integrations.Buildalyzer;
 using Fink.Integrations.NuGet;
 
-using NuGet.ProjectModel;
-
 namespace Fink;
 
 internal sealed class Program
@@ -21,7 +19,13 @@ internal sealed class Program
         ExecutionResult executionResult = args.Validate() switch
         {
             ArgsValidationError error => error,
-            _ => AnalyzeDependencies(args[0], args[1], rm)
+            _ => Build(args[0], args[1]) switch
+            {
+                BuildDependenciesError error => error,
+                BuildDependenciesSuccess success => Analyze([..success.Dependencies], rm),
+                var result => throw new InvalidOperationException(
+                    $"Unexpected build dependencies result: {result}")
+            }
         };
 
         LogExecutionResult(executionResult);
@@ -36,41 +40,36 @@ internal sealed class Program
     private static void LogExecutionResult(ExecutionResult executionResult) =>
         Console.WriteLine($"Execution result: {executionResult}");
 
-    private static AnalyzeDependenciesResult AnalyzeDependencies(
+    private static BuildDependenciesResult Build(
         string projectPath,
-        string targetFramework,
+        string targetFramework) =>
+        DotNetProjectBuilder.Build(
+                projectPath,
+                new Abstractions.Environment(
+                    string.Empty,
+                    ImmutableDictionary<string, string>.Empty),
+                new BuildalyzerBuildOptions(
+                    string.Empty,
+                    [targetFramework],
+                    ImmutableList<string>.Empty,
+                    ImmutableList<string>.Empty)).First() switch
+            {
+                DotNetProjectBuildError error => new BuildFailedError(
+                    error.TargetFramework,
+                    error.BuildLog),
+                var success => new BuildDependenciesSuccess([
+                    ..success.LockFilePath
+                        .AssertFilePathExists()
+                        .AssertFilePathHasExtension(".json")
+                        .ReadLockFile()
+                        .GetDependenciesOrThrow(targetFramework)
+                ])
+            };
+
+    private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies,
         ResourceManager rm)
     {
-        // todo: remove printing to console, return results with data enough to print'em later
-
-        IEnumerable<DotNetProjectBuildResult> results = DotNetProjectBuilder.Build(
-            projectPath,
-            new Abstractions.Environment(
-                string.Empty,
-                ImmutableDictionary<string, string>.Empty),
-            new BuildalyzerBuildOptions(
-                string.Empty,
-                [targetFramework],
-                ImmutableList<string>.Empty,
-                ImmutableList<string>.Empty));
-
-        DotNetProjectBuildResult result = results.First();
-
-        if (result is DotNetProjectBuildError buildError)
-        {
-            Console.WriteLine(rm.GetString("BuildFailed", CultureInfo.InvariantCulture));
-            Console.WriteLine(buildError.BuildLog);
-            return new BuildFailedError();
-        }
-
-        LockFile lockFile = result.LockFilePath
-            .AssertFilePathExists()
-            .AssertFilePathHasExtension(".json")
-            .ReadLockFile();
-
-        List<Dependency> dependencies = [.. lockFile.GetDependenciesOrThrow(targetFramework)];
         List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
-
         List<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
         [
             .. distinctDependencies
@@ -78,12 +77,12 @@ internal sealed class Program
                 .Where(g => g.Count() > 1)
         ];
 
-        Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
-        Console.WriteLine($"Lock file path: {lockFile.Path}");
-        Console.WriteLine($"Number of dependencies: {dependencies.Count}");
-        Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
-        Console.WriteLine(
-            $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count}");
+        // Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
+        // Console.WriteLine($"Lock file path: {lockFile.Path}");
+        // Console.WriteLine($"Number of dependencies: {dependencies.Count}");
+        // Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
+        // Console.WriteLine(
+        //     $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count}");
 
         bool hasConflicts = multipleVersionDependencies.Count > 0;
 
