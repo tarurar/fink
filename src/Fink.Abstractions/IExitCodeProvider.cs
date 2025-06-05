@@ -1,4 +1,4 @@
-namespace Fink.Abstractions.ExecutionPipeline;
+namespace Fink.Abstractions;
 
 public interface IExitCodeProvider
 {

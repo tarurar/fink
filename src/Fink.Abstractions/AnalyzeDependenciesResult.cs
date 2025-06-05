@@ -1,8 +1,9 @@
-namespace Fink.Abstractions.ExecutionPipeline;
+namespace Fink.Abstractions;
 
-public abstract record AnalyzeDependenciesResult : ExecutionResult;
+public abstract record AnalyzeDependenciesResult : Result;
 
-public abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IErrorExecutionResult
+public abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IErrorResult,
+    IExitCodeProvider
 {
     public abstract int ExitCode { get; }
 }
@@ -13,4 +14,4 @@ public sealed record ConflictsDetectedError : AnalyzeDependenciesError
 }
 
 public sealed record AnalyzeDependenciesSuccess : AnalyzeDependenciesResult,
-    ISuccessExecutionResult;
+    ISuccessResult;

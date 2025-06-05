@@ -1,4 +1,4 @@
-namespace Fink.Abstractions.ExecutionPipeline;
+namespace Fink.Abstractions;
 
 /// <summary>
 /// Exit codes following BSD sysexits.h conventions for the Fink console application.

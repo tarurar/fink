@@ -1,17 +1,15 @@
 using System.Reflection;
 
-using Fink.Abstractions.ExecutionPipeline;
-
 namespace Fink.Abstractions.Tests;
 
-public class ExecutionResultTests
+public class ResultTests
 {
-    private static readonly Type ExecutionResultType = typeof(ExecutionResult);
-    private static readonly Type SuccessInterfaceType = typeof(ISuccessExecutionResult);
-    private static readonly Type ErrorInterfaceType = typeof(IErrorExecutionResult);
+    private static readonly Type ResultType = typeof(Result);
+    private static readonly Type SuccessInterfaceType = typeof(ISuccessResult);
+    private static readonly Type ErrorInterfaceType = typeof(IErrorResult);
 
     [Fact]
-    public void AllNonAbstractExecutionResultDescendants_ShouldImplementRequiredInterfaces()
+    public void AllNonAbstractResultDescendants_ShouldImplementRequiredInterfaces()
     {
         var assemblyDirectory =
             Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
@@ -22,7 +20,7 @@ public class ExecutionResultTests
 
         List<Type> nonAbstractDescendants = [];
         foreach (var descedantsInAssembly in finkAssemblies.Select(assembly => assembly.GetTypes()
-                     .Where(type => type.IsSubclassOf(ExecutionResultType))
+                     .Where(type => type.IsSubclassOf(ResultType))
                      .Where(type => !type.IsAbstract)
                      .ToList()))
         {

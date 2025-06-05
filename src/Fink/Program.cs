@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Resources;
 
 using Fink.Abstractions;
-using Fink.Abstractions.ExecutionPipeline;
 using Fink.Integrations.Buildalyzer;
 using Fink.Integrations.NuGet;
 
@@ -17,7 +16,7 @@ internal sealed class Program
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        ExecutionResult executionResult = args.Validate()
+        Result executionResult = args.Validate()
             .Bind(() => Build(args[0], args[1]))
             .Bind<BuildDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
 
@@ -30,7 +29,7 @@ internal sealed class Program
         };
     }
 
-    private static void LogExecutionResult(ExecutionResult executionResult) =>
+    private static void LogExecutionResult(Result executionResult) =>
         Console.WriteLine($"Execution result: {executionResult}");
 
     private static BuildDependenciesResult Build(
@@ -47,7 +46,7 @@ internal sealed class Program
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty)).First() switch
             {
-                DotNetProjectBuildError error => new BuildFailedError(
+                DotNetProjectBuildError error => new BuildError(
                     error.TargetFramework,
                     error.BuildLog),
                 var success => new BuildDependenciesSuccess([

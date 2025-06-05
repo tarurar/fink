@@ -1,8 +1,8 @@
-namespace Fink.Abstractions.ExecutionPipeline;
+namespace Fink.Abstractions;
 
-public abstract record ArgsValidationResult : ExecutionResult;
+public abstract record ArgsValidationResult : Result;
 
-public abstract record ArgsValidationError : ArgsValidationResult, IErrorExecutionResult
+public abstract record ArgsValidationError : ArgsValidationResult, IErrorResult, IExitCodeProvider
 {
     public abstract int ExitCode { get; }
 }
@@ -17,4 +17,4 @@ public sealed record ProjectFileNotFoundError(string FilePath) : ArgsValidationE
     public override int ExitCode => ExitCodes.InputFileNotFound;
 }
 
-public sealed record ArgsValidationSuccess : ArgsValidationResult, ISuccessExecutionResult;
+public sealed record ArgsValidationSuccess : ArgsValidationResult, ISuccessResult;
