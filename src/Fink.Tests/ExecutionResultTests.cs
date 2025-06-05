@@ -11,12 +11,23 @@ public class ExecutionResultTests
     [Fact]
     public void AllNonAbstractExecutionResultDescendants_ShouldImplementRequiredInterfaces()
     {
-        Assembly assembly = typeof(ExecutionResult).Assembly;
+        Assembly[] finkAssemblies = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Where(a => !a.IsDynamic)
+            .Where(a =>
+                a.GetName().Name?.StartsWith("Fink", StringComparison.OrdinalIgnoreCase) ?? true)
+            .ToArray();
 
-        List<Type> nonAbstractDescendants = assembly.GetTypes()
-            .Where(type => type.IsSubclassOf(ExecutionResultType))
-            .Where(type => !type.IsAbstract)
-            .ToList();
+        List<Type> nonAbstractDescendants = [];
+        foreach (var assembly in finkAssemblies)
+        {
+            var descedantsInAssembly = assembly.GetTypes()
+                .Where(type => type.IsSubclassOf(ExecutionResultType))
+                .Where(type => !type.IsAbstract)
+                .ToList();
+
+            nonAbstractDescendants.AddRange(descedantsInAssembly);
+        }
 
         foreach (Type descendant in nonAbstractDescendants)
         {
