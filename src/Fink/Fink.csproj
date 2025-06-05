@@ -21,4 +21,9 @@
   </ItemGroup>
 
   <Import Project="build/Resources.targets" />
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fink.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -381,7 +381,7 @@ dotnet_diagnostic.CS1591.severity = none
 dotnet_diagnostic.IDE0008.severity = none
 
 # Disable CA1707 for test files (using underscores in test method names)
-[**/Fink.Abstractions.Tests/*.cs]
+[**/*Tests/*.cs]
 dotnet_diagnostic.CA1707.severity = none
 # Disable CA1515 for test fixtures (as they are usually injected into public constructors)
 [**/Fink.Abstractions.Tests/*Fixture.cs]
