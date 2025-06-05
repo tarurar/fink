@@ -1,3 +1,5 @@
+using Fink.Abstractions.ExecutionPipeline;
+
 namespace Fink;
 
 internal static class ArgumentsValidationExtensions

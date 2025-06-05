@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fink.Abstractions\Fink.Abstractions.csproj" />
     <ProjectReference Include="..\Fink.Integrations.NuGet\Fink.Integrations.NuGet.csproj" />
     <ProjectReference Include="..\Fink.Integrations.Buildalyzer\Fink.Integrations.Buildalyzer.csproj" />
     <!-- 
@@ -21,9 +22,5 @@
   </ItemGroup>
 
   <Import Project="build/Resources.targets" />
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="Fink.Tests" />
-  </ItemGroup>
 
 </Project>

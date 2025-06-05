@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Resources;
 
 using Fink.Abstractions;
+using Fink.Abstractions.ExecutionPipeline;
 using Fink.Integrations.Buildalyzer;
 using Fink.Integrations.NuGet;
 

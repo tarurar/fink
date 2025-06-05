@@ -1,9 +1,9 @@
-namespace Fink;
+namespace Fink.Abstractions.ExecutionPipeline;
 
 /// <summary>
 /// Exit codes following BSD sysexits.h conventions for the Fink console application.
 /// </summary>
-internal static class ExitCodes
+public static class ExitCodes
 {
     /// <summary>
     /// Success - Analysis completed successfully with no dependency conflicts.

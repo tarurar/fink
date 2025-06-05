@@ -1,6 +1,8 @@
 using System.Reflection;
 
-namespace Fink.Tests;
+using Fink.Abstractions.ExecutionPipeline;
+
+namespace Fink.Abstractions.Tests;
 
 public class ExecutionResultTests
 {
