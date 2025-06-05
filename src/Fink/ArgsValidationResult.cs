@@ -2,7 +2,7 @@ namespace Fink;
 
 internal abstract record ArgsValidationResult : ExecutionResult;
 
-internal abstract record ArgsValidationError : ArgsValidationResult, IExitCodeProvider
+internal abstract record ArgsValidationError : ArgsValidationResult, IErrorExecutionResult
 {
     public abstract int ExitCode { get; }
 }
@@ -17,4 +17,4 @@ internal sealed record ProjectFileNotFoundError(string FilePath) : ArgsValidatio
     public override int ExitCode => ExitCodes.InputFileNotFound;
 }
 
-internal sealed record ArgsValidationSuccess : ArgsValidationResult;
+internal sealed record ArgsValidationSuccess : ArgsValidationResult, ISuccessExecutionResult;

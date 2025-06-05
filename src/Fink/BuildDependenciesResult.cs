@@ -4,7 +4,7 @@ namespace Fink;
 
 internal abstract record BuildDependenciesResult : ExecutionResult;
 
-internal abstract record BuildDependenciesError : BuildDependenciesResult, IExitCodeProvider
+internal abstract record BuildDependenciesError : BuildDependenciesResult, IErrorExecutionResult
 {
     public abstract int ExitCode { get; }
 }
@@ -16,4 +16,4 @@ internal sealed record BuildFailedError(string TargetFramework, string BuildLog)
 }
 
 internal sealed record BuildDependenciesSuccess(IReadOnlyCollection<Dependency> Dependencies)
-    : BuildDependenciesResult;
+    : BuildDependenciesResult, ISuccessExecutionResult;

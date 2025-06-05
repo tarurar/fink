@@ -16,17 +16,9 @@ internal sealed class Program
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        ExecutionResult executionResult = args.Validate() switch
-        {
-            ArgsValidationError error => error,
-            _ => Build(args[0], args[1]) switch
-            {
-                BuildDependenciesError error => error,
-                BuildDependenciesSuccess success => Analyze([..success.Dependencies], rm),
-                var result => throw new InvalidOperationException(
-                    $"Unexpected build dependencies result: {result}")
-            }
-        };
+        ExecutionResult executionResult = args.Validate()
+            .Bind(() => Build(args[0], args[1]))
+            .Bind<BuildDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
 
         LogExecutionResult(executionResult);
 
