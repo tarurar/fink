@@ -2,7 +2,7 @@ using Fink.Abstractions;
 
 namespace Fink;
 
-internal static class ArgumentsValidationExtensions
+internal static class ArgumentsValidation
 {
     internal static ArgsValidationResult Validate(this string[] args) => args switch
     {

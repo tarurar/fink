@@ -16,22 +16,24 @@ internal sealed class Program
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        Result executionResult = args.Validate()
+        var result = args.Validate()
             .Bind(() => DesignTimeBuild(args[0], args[1]))
             .Bind<BuildalyzertBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
             .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
 
-        LogExecutionResult(executionResult);
-
-        return executionResult switch
+        return LogAndReturn(result) switch
         {
             IExitCodeProvider provider => provider.ExitCode,
-            _ => ExitCodes.Success
+            ISuccessResult => ExitCodes.Success,
+            _ => ExitCodes.Error,
         };
     }
 
-    private static void LogExecutionResult(Result executionResult) =>
-        Console.WriteLine($"Execution result: {executionResult}");
+    private static Result LogAndReturn(Result result)
+    {
+        Console.WriteLine($"Execution result: {result}");
+        return result;
+    }
 
     private static BuildalyzerBuildResult DesignTimeBuild(
         string projectPath,

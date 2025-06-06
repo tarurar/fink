@@ -11,7 +11,12 @@ public static class ExitCodes
     public const int Success = 0;
 
     /// <summary>
-    /// General error - Analysis completed but detected multiple versions of the same package.
+    /// General error
+    /// </summary>
+    public const int Error = 1;
+
+    /// <summary>
+    /// Analysis completed but detected multiple versions of the same package.
     /// This is the primary use case for Fink - dependency conflicts were found.
     /// </summary>
     public const int ConflictsDetected = 1;
