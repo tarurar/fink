@@ -142,6 +142,10 @@ GitHub Actions workflow includes:
 
 Fink is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🗺️ Roadmap
+
+- [ ] Global Tool Support - distribute Fink as a `.NET` global tool. (tracking issue to be created)
+
 ## 🐛 Issues & Support
 
 - **Bug Reports**: [Create an issue](https://github.com/tarurar/fink/issues/new?template=bug_report.md)
