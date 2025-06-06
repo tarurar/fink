@@ -29,4 +29,12 @@ public static class ResultFunctionalExtensions
                 $"Result {result.GetType().Name} must implement ISuccessResult or IErrorResult")
         };
     }
+
+    public static Result Tap(this Result result, Action<Result> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        action(result);
+        return result;
+    }
 }

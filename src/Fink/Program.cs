@@ -18,10 +18,11 @@ internal sealed class Program
 
         var result = args.Validate()
             .Bind(() => DesignTimeBuild(args[0], args[1]))
-            .Bind<BuildalyzertBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
-            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
+            .Bind<BuildalyzerBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
+            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm))
+            .Tap(LogAndReturn);
 
-        return LogAndReturn(result) switch
+        return result switch
         {
             IExitCodeProvider provider => provider.ExitCode,
             ISuccessResult => ExitCodes.Success,
@@ -29,10 +30,9 @@ internal sealed class Program
         };
     }
 
-    private static Result LogAndReturn(Result result)
+    private static void LogAndReturn(Result result)
     {
         Console.WriteLine($"Execution result: {result}");
-        return result;
     }
 
     private static BuildalyzerBuildResult DesignTimeBuild(
