@@ -5,7 +5,7 @@ public static class FilePathExtensions
     public static FilePath AssertFilePathExists(this FilePath filePath) =>
         File.Exists(filePath)
             ? filePath
-            : throw new FileNotFoundException($"File not found at path '{filePath}'");
+            : throw new FileNotFoundException("File not found at path", filePath);
 
     public static FilePath AssertFilePathHasExtension(this FilePath filePath, string extension) =>
         Path.GetExtension(filePath).Equals(extension, StringComparison.OrdinalIgnoreCase)

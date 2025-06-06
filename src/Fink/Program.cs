@@ -17,8 +17,9 @@ internal sealed class Program
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
         Result executionResult = args.Validate()
-            .Bind(() => Build(args[0], args[1]))
-            .Bind<BuildDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
+            .Bind(() => DesignTimeBuild(args[0], args[1]))
+            .Bind<BuildalyzertBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
+            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm));
 
         LogExecutionResult(executionResult);
 
@@ -32,31 +33,45 @@ internal sealed class Program
     private static void LogExecutionResult(Result executionResult) =>
         Console.WriteLine($"Execution result: {executionResult}");
 
-    private static BuildDependenciesResult Build(
+    private static BuildalyzerBuildResult DesignTimeBuild(
         string projectPath,
-        string targetFramework) =>
-        DotNetProjectBuilder.Build(
-                projectPath,
-                new Abstractions.Environment(
-                    string.Empty,
-                    ImmutableDictionary<string, string>.Empty),
-                new BuildalyzerBuildOptions(
-                    string.Empty,
-                    [targetFramework],
-                    ImmutableList<string>.Empty,
-                    ImmutableList<string>.Empty)).First() switch
-            {
-                DotNetProjectBuildError error => new BuildError(
-                    error.TargetFramework,
-                    error.BuildLog),
-                var success => new BuildDependenciesSuccess([
-                    ..success.LockFilePath
-                        .AssertFilePathExists()
-                        .AssertFilePathHasExtension(".json")
-                        .ReadLockFile()
-                        .GetDependenciesOrThrow(targetFramework)
-                ])
-            };
+        string targetFramework) => ProjectBuilder.Build(
+            projectPath,
+            new Abstractions.Environment(
+                string.Empty,
+                ImmutableDictionary<string, string>.Empty),
+            new BuildalyzerBuildOptions(
+                string.Empty,
+                [targetFramework],
+                ImmutableList<string>.Empty,
+                ImmutableList<string>.Empty))
+        .First();
+
+
+    private static CollectDependenciesResult Collect(FilePath lockFilePath, string targetFramework)
+    {
+        try
+        {
+            var dependencies = lockFilePath
+                .AssertFilePathExists()
+                .AssertFilePathHasExtension(".json")
+                .ReadLockFile()
+                .GetDependenciesOrThrow(targetFramework);
+            return new CollectDependenciesSuccess([..dependencies]);
+        }
+        catch (FileNotFoundException ex)
+        {
+            return new LockFileNotFoundError(ex.FileName ?? lockFilePath);
+        }
+        catch (ArgumentException ex)
+        {
+            return new LockFileExtensionError(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return new LockFileParseError(ex.Message);
+        }
+    }
 
     private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies,
         ResourceManager rm)

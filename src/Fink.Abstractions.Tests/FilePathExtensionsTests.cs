@@ -1,15 +1,14 @@
 namespace Fink.Abstractions.Tests;
 
-public class FilePathExtensionsTests(TemporaryFileFixture fixture) : IClassFixture<TemporaryFileFixture>
+public class FilePathExtensionsTests(TemporaryFileFixture fixture)
+    : IClassFixture<TemporaryFileFixture>
 {
-    private readonly TemporaryFileFixture _fixture = fixture;
-
     [Fact]
     public void AssertFilePathExists_FileExists_ReturnsFilePath()
     {
-        FilePath result = _fixture.FilePath.AssertFilePathExists();
+        FilePath result = fixture.FilePath.AssertFilePathExists();
 
-        Assert.Equal(_fixture.FilePath, result);
+        Assert.Equal(fixture.FilePath, result);
     }
 
     [Fact]
@@ -17,8 +16,9 @@ public class FilePathExtensionsTests(TemporaryFileFixture fixture) : IClassFixtu
     {
         FilePath filePath = "non-existent-file.txt";
 
-        FileNotFoundException ex = Assert.Throws<FileNotFoundException>(filePath.AssertFilePathExists);
-        Assert.Contains(filePath, ex.Message, StringComparison.InvariantCulture);
+        FileNotFoundException ex = Assert.Throws<FileNotFoundException>(
+            filePath.AssertFilePathExists);
+        Assert.Contains(filePath, ex.FileName, StringComparison.InvariantCulture);
     }
 
     [Fact]
@@ -36,7 +36,8 @@ public class FilePathExtensionsTests(TemporaryFileFixture fixture) : IClassFixtu
     {
         FilePath filePath = Path.Combine(Path.GetTempPath(), "file.txt");
 
-        ArgumentException ex = Assert.Throws<ArgumentException>(() => filePath.AssertFilePathHasExtension(".pdf"));
+        ArgumentException ex =
+            Assert.Throws<ArgumentException>(() => filePath.AssertFilePathHasExtension(".pdf"));
         Assert.Contains(filePath, ex.Message, StringComparison.InvariantCulture);
     }
 
@@ -45,7 +46,8 @@ public class FilePathExtensionsTests(TemporaryFileFixture fixture) : IClassFixtu
     {
         FilePath filePath = Path.Combine(Path.GetTempPath(), "file");
 
-        ArgumentException ex = Assert.Throws<ArgumentException>(() => filePath.AssertFilePathHasExtension(".txt"));
+        ArgumentException ex =
+            Assert.Throws<ArgumentException>(() => filePath.AssertFilePathHasExtension(".txt"));
         Assert.Contains(expectedSubstring: filePath, ex.Message, StringComparison.InvariantCulture);
     }
 
