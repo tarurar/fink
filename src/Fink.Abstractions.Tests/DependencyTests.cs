@@ -12,7 +12,7 @@ public class DependencyTests
     }
 
     [Fact]
-    public void When_ParentDepdendencyProvided_Then_PathIsCreatedWithMultipleSegments()
+    public void When_ParentDependencyProvided_Then_PathIsCreatedWithMultipleSegments()
     {
         Dependency parentDependency = new(new("parent"));
         Dependency dependency = new(new("dependency"), ParentDependency: parentDependency);
