@@ -21,6 +21,6 @@
     <ProjectReference Include="..\Fink.Build\Fink.Build.csproj" />
   </ItemGroup>
 
-  <Import Project="build/Resources.targets" />
+  <Import Project="build\Resources.targets" />
 
 </Project>
