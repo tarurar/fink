@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <UsingTask TaskName="GenerateResourceTask"
-        AssemblyFile="$(MSBuildStartupDirectory)/src/Fink.Build/bin/$(Configuration)/netstandard2.0/Fink.Build.dll" />
+        AssemblyFile="$(MSBuildThisFileDirectory)..\..\Fink.Build\bin\$(Configuration)\netstandard2.0\Fink.Build.dll" />
 
     <ItemGroup>
         <TextResource Include="Resources.txt" />
