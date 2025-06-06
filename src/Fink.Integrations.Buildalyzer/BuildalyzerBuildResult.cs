@@ -14,7 +14,7 @@ public sealed record BuildalyzerBuildError(
     public int ExitCode => ExitCodes.InternalError;
 }
 
-public sealed record BuildalyzertBuildSuccess(
+public sealed record BuildalyzerBuildSuccess(
     FilePath ProjectFilePath,
     FilePath LockFilePath,
     string TargetFramework,

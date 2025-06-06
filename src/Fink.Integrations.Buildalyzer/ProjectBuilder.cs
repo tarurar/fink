@@ -22,7 +22,7 @@ public static class ProjectBuilder
                 out string buildLog)
             .Select(r => (BuildalyzerBuildResult)(r switch
             {
-                { Succeeded: true } => new BuildalyzertBuildSuccess(
+                { Succeeded: true } => new BuildalyzerBuildSuccess(
                     projectFilePath,
                     r.GetProjectAssetsFilePathOrThrow(),
                     r.TargetFramework,
