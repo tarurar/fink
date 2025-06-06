@@ -20,7 +20,7 @@ internal sealed class Program
             .Bind(() => DesignTimeBuild(args[0], args[1]))
             .Bind<BuildalyzerBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
             .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm))
-            .Tap(LogAndReturn);
+            .Tap(ResultLogging.Log);
 
         return result switch
         {
@@ -28,11 +28,6 @@ internal sealed class Program
             ISuccessResult => ExitCodes.Success,
             _ => ExitCodes.Error,
         };
-    }
-
-    private static void LogAndReturn(Result result)
-    {
-        Console.WriteLine($"Execution result: {result}");
     }
 
     private static BuildalyzerBuildResult DesignTimeBuild(
