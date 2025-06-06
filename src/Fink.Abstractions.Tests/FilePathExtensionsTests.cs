@@ -58,4 +58,14 @@ public class FilePathExtensionsTests(TemporaryFileFixture fixture) : IClassFixtu
 
         Assert.Equal(filePath, result);
     }
+
+    [Fact]
+    public void AssertFilePathHasExtension_IgnoresExtensionCase_ReturnsFilePath()
+    {
+        FilePath filePath = Path.Combine(Path.GetTempPath(), "file.txt");
+
+        FilePath result = filePath.AssertFilePathHasExtension(".TXT");
+
+        Assert.Equal(filePath, result);
+    }
 }

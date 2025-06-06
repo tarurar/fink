@@ -8,7 +8,7 @@ public static class FilePathExtensions
             : throw new FileNotFoundException($"File not found at path '{filePath}'");
 
     public static FilePath AssertFilePathHasExtension(this FilePath filePath, string extension) =>
-        Path.GetExtension(filePath) == extension
+        Path.GetExtension(filePath).Equals(extension, StringComparison.OrdinalIgnoreCase)
             ? filePath
             : throw new ArgumentException($"Path '{filePath}' does not have extension {extension}");
 }
