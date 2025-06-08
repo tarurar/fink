@@ -16,19 +16,21 @@ internal sealed class Program
     {
         ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
 
-        var result = args.Validate()
+        return args.Validate()
             .Bind(() => DesignTimeBuild(args[0], args[1]))
             .Bind<BuildalyzerBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
             .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm))
-            .Tap(ResultLogging.Log);
+            .Tap(ResultLogging.Log)
+            .Map(ToExitCode);
+    }
 
-        return result switch
+    private static int ToExitCode(Result result) =>
+        result switch
         {
             IExitCodeProvider provider => provider.ExitCode,
             ISuccessResult => ExitCodes.Success,
             _ => ExitCodes.Error,
         };
-    }
 
     private static BuildalyzerBuildResult DesignTimeBuild(
         string projectPath,
@@ -43,7 +45,6 @@ internal sealed class Program
                 ImmutableList<string>.Empty,
                 ImmutableList<string>.Empty))
         .First();
-
 
     private static CollectDependenciesResult Collect(FilePath lockFilePath, string targetFramework)
     {

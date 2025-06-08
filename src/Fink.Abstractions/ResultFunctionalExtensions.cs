@@ -30,6 +30,13 @@ public static class ResultFunctionalExtensions
         };
     }
 
+    public static T Map<T>(this Result result, Func<Result, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        return mapper(result);
+    }
+
     public static Result Tap(this Result result, Action<Result> action)
     {
         ArgumentNullException.ThrowIfNull(action);
