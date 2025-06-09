@@ -84,10 +84,6 @@ internal sealed class Program
 
         // Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
         // Console.WriteLine($"Lock file path: {lockFile.Path}");
-        // Console.WriteLine($"Number of dependencies: {dependencies.Count}");
-        // Console.WriteLine($"Number of distinct dependencies: {distinctDependencies.Count}");
-        // Console.WriteLine(
-        //     $"Number of dependencies with multiple versions: {multipleVersionDependencies.Count}");
 
         bool hasConflicts = multipleVersionDependencies.Count > 0;
 
@@ -103,7 +99,7 @@ internal sealed class Program
                 }
             }
 
-            return new ConflictsDetectedError();
+            return new ConflictsDetectedError(multipleVersionDependencies);
         }
 
         Console.WriteLine(rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture));

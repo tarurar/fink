@@ -4,3 +4,4 @@ UsageMessage=Usage: fink <project> <target-framework>
 ProjectFileNotFoundFmt=Project file not found: {0}
 ConflictsFound=Dependency version conflicts detected
 NoConflictsFound=No dependency version conflicts found
+ExecutionSucceeded=Execution succeeded, no issues found

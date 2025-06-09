@@ -1,3 +1,5 @@
+using System.Resources;
+
 using Fink.Abstractions;
 
 namespace Fink.Integrations.Buildalyzer;
@@ -12,6 +14,13 @@ public sealed record BuildalyzerBuildError(
     : BuildalyzerBuildResult(ProjectFilePath, Log), IErrorResult, IExitCodeProvider
 {
     public int ExitCode => ExitCodes.InternalError;
+
+    public string BuildOutput(ResourceManager rm)
+    {
+        ArgumentNullException.ThrowIfNull(rm);
+
+        return Log;
+    }
 }
 
 public sealed record BuildalyzerBuildSuccess(

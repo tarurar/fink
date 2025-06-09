@@ -1,20 +1,25 @@
+using System.Globalization;
+using System.Resources;
+
 using Fink.Abstractions;
 
 namespace Fink;
 
 internal static class ResultLogging
 {
+    private static readonly ResourceManager
+        ResourceManager = new("Fink.Resources", typeof(Program).Assembly);
+
     public static void Log(this Result result)
     {
-        ArgumentNullException.ThrowIfNull(result);
-
         switch (result)
         {
             case ISuccessResult:
-                Console.WriteLine($"Execution result: {result}");
+                Console.WriteLine(
+                    ResourceManager.GetString("ExecutionSucceeded", CultureInfo.InvariantCulture));
                 break;
             case IErrorResult errorResult:
-                Console.Error.WriteLine($"Execution failed: {errorResult}");
+                Console.Error.Write(errorResult.BuildOutput(ResourceManager));
                 break;
             default:
                 throw new InvalidOperationException(
