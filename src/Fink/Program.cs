@@ -1,6 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Globalization;
-using System.Resources;
 
 using Fink.Abstractions;
 using Fink.Integrations.Buildalyzer;
@@ -14,12 +12,10 @@ internal sealed class Program
 
     private static int RunApplication(string[] args)
     {
-        ResourceManager rm = new("Fink.Resources", typeof(Program).Assembly);
-
         return args.Validate()
             .Bind(() => DesignTimeBuild(args[0], args[1]))
             .Bind<BuildalyzerBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
-            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies], rm))
+            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies]))
             .Tap(ResultLogging.Log)
             .Map(ToExitCode);
     }
@@ -71,8 +67,7 @@ internal sealed class Program
         }
     }
 
-    private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies,
-        ResourceManager rm)
+    private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies)
     {
         List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
         List<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
@@ -82,27 +77,8 @@ internal sealed class Program
                 .Where(g => g.Count() > 1)
         ];
 
-        // Console.WriteLine(rm.GetString("BuildSucceeded", CultureInfo.InvariantCulture));
-        // Console.WriteLine($"Lock file path: {lockFile.Path}");
-
-        bool hasConflicts = multipleVersionDependencies.Count > 0;
-
-        if (hasConflicts)
-        {
-            Console.WriteLine(rm.GetString("ConflictsFound", CultureInfo.InvariantCulture));
-            foreach (IGrouping<DependencyName, Dependency> group in multipleVersionDependencies)
-            {
-                Console.WriteLine($"Package {group.Key} has {group.Count()} versions:");
-                foreach (Dependency dependency in group)
-                {
-                    Console.WriteLine($"  {dependency.Version} (Path: {dependency.Path})");
-                }
-            }
-
-            return new ConflictsDetectedError(multipleVersionDependencies);
-        }
-
-        Console.WriteLine(rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture));
-        return new AnalyzeDependenciesSuccess();
+        return multipleVersionDependencies.Count > 0
+            ? new ConflictsDetectedError(multipleVersionDependencies) 
+            : new AnalyzeDependenciesSuccess();
     }
 }
