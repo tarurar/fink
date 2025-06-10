@@ -5,17 +5,18 @@ namespace Fink.Abstractions;
 public abstract record CollectDependenciesResult : Result;
 
 public abstract record CollectDependenciesError : CollectDependenciesResult, IErrorResult,
-    IExitCodeProvider
+    IExitCodeProvider, IOutputBuilder
 {
     public abstract int ExitCode { get; }
-    public abstract string BuildOutput(ResourceManager rm);
+    public abstract string Build(ResourceManager rm);
+
 }
 
 public sealed record LockFileNotFoundError(string Message) : CollectDependenciesError
 {
     public override int ExitCode => ExitCodes.InternalError;
 
-    public override string BuildOutput(ResourceManager rm)
+    public override string Build(ResourceManager rm)
     {
         ArgumentNullException.ThrowIfNull(rm);
 
@@ -27,7 +28,7 @@ public sealed record LockFileExtensionError(string Message) : CollectDependencie
 {
     public override int ExitCode => ExitCodes.InternalError;
 
-    public override string BuildOutput(ResourceManager rm)
+    public override string Build(ResourceManager rm)
     {
         ArgumentNullException.ThrowIfNull(rm);
 
@@ -39,7 +40,7 @@ public sealed record LockFileParseError(string Message) : CollectDependenciesErr
 {
     public override int ExitCode => ExitCodes.InternalError;
 
-    public override string BuildOutput(ResourceManager rm)
+    public override string Build(ResourceManager rm)
     {
         ArgumentNullException.ThrowIfNull(rm);
 

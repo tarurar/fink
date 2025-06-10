@@ -1,12 +1,9 @@
-using System.Resources;
-
 namespace Fink.Abstractions;
 
 public abstract record Result;
 
+// marker interface
 public interface ISuccessResult;
 
-public interface IErrorResult
-{
-    string BuildOutput(ResourceManager rm) => string.Empty;
-}
+// marker interface
+public interface IErrorResult;

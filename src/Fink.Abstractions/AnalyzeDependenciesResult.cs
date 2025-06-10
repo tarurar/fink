@@ -7,10 +7,11 @@ namespace Fink.Abstractions;
 public abstract record AnalyzeDependenciesResult : Result;
 
 public abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IErrorResult,
-    IExitCodeProvider
+    IExitCodeProvider, IOutputBuilder
 {
     public abstract int ExitCode { get; }
-    public abstract string BuildOutput(ResourceManager rm);
+
+    public abstract string Build(ResourceManager rm);
 }
 
 public sealed record ConflictsDetectedError(
@@ -19,7 +20,7 @@ public sealed record ConflictsDetectedError(
 {
     public override int ExitCode => ExitCodes.ConflictsDetected;
 
-    public override string BuildOutput(ResourceManager rm)
+    public override string Build(ResourceManager rm)
     {
         ArgumentNullException.ThrowIfNull(rm);
 

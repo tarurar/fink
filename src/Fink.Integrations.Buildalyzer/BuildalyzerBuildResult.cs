@@ -11,11 +11,11 @@ public abstract record BuildalyzerBuildResult(
 public sealed record BuildalyzerBuildError(
     FilePath ProjectFilePath,
     string Log)
-    : BuildalyzerBuildResult(ProjectFilePath, Log), IErrorResult, IExitCodeProvider
+    : BuildalyzerBuildResult(ProjectFilePath, Log), IErrorResult, IExitCodeProvider, IOutputBuilder
 {
     public int ExitCode => ExitCodes.InternalError;
 
-    public string BuildOutput(ResourceManager rm)
+    string IOutputBuilder.Build(ResourceManager rm)
     {
         ArgumentNullException.ThrowIfNull(rm);
 
