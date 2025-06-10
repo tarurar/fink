@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.NuGet", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions", "Fink.Abstractions\Fink.Abstractions.csproj", "{14EC7563-6F17-47CF-A00B-D7E6ECEC68F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Console", "Fink.Console\Fink.Console.csproj", "{1BB98D18-F1BC-4F7A-8FA1-C55E2910F549}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Integrations.Buildalyzer", "Fink.Integrations.Buildalyzer\Fink.Integrations.Buildalyzer.csproj", "{0D75D2FB-AA04-4ABF-AC76-99AC9DDA1071}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fink.Abstractions.Tests", "Fink.Abstractions.Tests\Fink.Abstractions.Tests.csproj", "{B75CC01F-2EEC-418C-9BB1-B6CA5D388396}"
