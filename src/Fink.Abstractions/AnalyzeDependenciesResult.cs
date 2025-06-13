@@ -15,7 +15,7 @@ public abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IEr
 }
 
 public sealed record ConflictsDetectedError(
-    IReadOnlyCollection<IGrouping<DependencyName, Dependency>> Conflicts)
+    IReadOnlyCollection<Dependency> ConflictingDependencies)
     : AnalyzeDependenciesError
 {
     public override int ExitCode => ExitCodes.ConflictsDetected;
@@ -24,7 +24,7 @@ public sealed record ConflictsDetectedError(
     {
         ArgumentNullException.ThrowIfNull(rm);
 
-        if (Conflicts.Count == 0)
+        if (ConflictingDependencies.Count == 0)
         {
             return rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture) ??
                    "No conflicts found, but the message is missing in resources.";
@@ -36,12 +36,16 @@ public sealed record ConflictsDetectedError(
 
         var sb = new StringBuilder();
         sb.AppendLine(conflictsFound);
-        foreach (IGrouping<DependencyName, Dependency> group in Conflicts)
+        sb.AppendLine();
+        foreach (var packageNameGroup in ConflictingDependencies.GroupBy(d => d.Name))
         {
-            sb.AppendLine((string)$"Package {group.Key} has {group.Count()} versions:");
-            foreach (Dependency dependency in group)
+            sb.AppendLine(CultureInfo.InvariantCulture, $"Package {packageNameGroup.Key} has {packageNameGroup.DistinctBy(d => d.Version).Count()} versions:");
+            foreach (var packageVersionGroup in packageNameGroup.GroupBy(d => d.Version).OrderBy(g => g.Key))
             {
-                sb.AppendLine((string)$"  {dependency.Version} (Path: {dependency.Path})");
+                foreach (Dependency dependency in packageVersionGroup)
+                {
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"  {dependency.Version} (Path: {dependency.Path})");
+                }
             }
         }
 

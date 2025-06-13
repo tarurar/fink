@@ -15,7 +15,7 @@ internal sealed class Program
         return args.Validate()
             .Bind(() => DesignTimeBuild(args[0], args[1]))
             .Bind<BuildalyzerBuildSuccess>(s => Collect(s.LockFilePath, s.TargetFramework))
-            .Bind<CollectDependenciesSuccess>(s => Analyze([..s.Dependencies]))
+            .Bind<CollectDependenciesSuccess>(s => Analyze([.. s.Dependencies]))
             .Tap(ResultLogging.Log)
             .Map(ToExitCode);
     }
@@ -51,7 +51,7 @@ internal sealed class Program
                 .AssertFilePathHasExtension(".json")
                 .ReadLockFile()
                 .GetDependenciesOrThrow(targetFramework);
-            return new CollectDependenciesSuccess([..dependencies]);
+            return new CollectDependenciesSuccess([.. dependencies]);
         }
         catch (FileNotFoundException ex)
         {
@@ -69,16 +69,14 @@ internal sealed class Program
 
     private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies)
     {
-        List<Dependency> distinctDependencies = [.. dependencies.Distinct()];
-        List<IGrouping<DependencyName, Dependency>> multipleVersionDependencies =
-        [
-            .. distinctDependencies
-                .GroupBy(d => d.Name)
-                .Where(g => g.Count() > 1)
-        ];
+        var multipleVersionDependencies = dependencies
+            .GroupBy(d => new { d.Name, d.Version })
+            .GroupBy(d => d.Key.Name)
+            .Where(g => g.Count() > 1)
+            .ToList();
 
         return multipleVersionDependencies.Count > 0
-            ? new ConflictsDetectedError(multipleVersionDependencies) 
+            ? new ConflictsDetectedError(multipleVersionDependencies.SelectMany(g => g.SelectMany(d => d)).ToList())
             : new AnalyzeDependenciesSuccess();
     }
 }
