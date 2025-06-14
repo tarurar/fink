@@ -140,6 +140,18 @@ GitHub Actions workflow includes:
 
 - .NET 9.0 SDK
 
+## 📦 Dependencies
+
+Fink relies on the following key dependencies:
+
+### Semver
+- **Package**: [Semver](https://www.nuget.org/packages/Semver/) v3.0.0
+- **Purpose**: Semantic version parsing and comparison for dependency version analysis
+- **Repository**: [GitHub - maxhauser/semver](https://github.com/maxhauser/semver)
+- **Documentation**: [Semantic Versioning Specification](https://semver.org/)
+
+The Semver library provides robust semantic version parsing capabilities that enable Fink to accurately compare and analyze package versions according to semantic versioning standards. This is essential for detecting version conflicts and understanding dependency relationships.
+
 Fink is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🗺️ Roadmap
