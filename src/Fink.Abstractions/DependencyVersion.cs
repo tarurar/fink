@@ -1,8 +1,21 @@
+using Semver;
+
 namespace Fink.Abstractions;
 
-public record DependencyVersion : IComparable<DependencyVersion>
+/// <summary>
+/// Represents a version of a dependency in a semantic version format.
+/// </summary>
+public sealed record DependencyVersion : IComparable<DependencyVersion>, IEquatable<DependencyVersion>
 {
+    /// <summary>
+    /// Original version string
+    /// </summary>
     public string Version { get; init; }
+
+    /// <summary>
+    /// Parsed semantic version
+    /// </summary>
+    private SemVersion SemVersion { get; init; }
 
     public DependencyVersion(string version)
     {
@@ -11,40 +24,27 @@ public record DependencyVersion : IComparable<DependencyVersion>
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(version));
         }
 
-        Version = version.Trim();
+        if (!SemVersion.TryParse(version, SemVersionStyles.Any, out var semVersion))
+        {
+            throw new ArgumentException($"Invalid version format: {version}, expected semantic version format.", nameof(version));
+        }
+
+        SemVersion = semVersion;
+        Version = version;
     }
 
     public override string ToString() => Version;
 
-    public int CompareTo(DependencyVersion? other)
+    public int CompareTo(DependencyVersion? other) => other switch
     {
-        if (other is null)
-        {
-            return 1;
-        }
+        null => 1,
+        _ when ReferenceEquals(this, other) => 0,
+        _ => SemVersion.ComparePrecedenceTo(other.SemVersion)
+    };
 
-        if (ReferenceEquals(this, other))
-        {
-            return 0;
-        }
+    public bool Equals(DependencyVersion? other) => CompareTo(other) == 0;
 
-        var thisParts = ParseVersion(Version);
-        var otherParts = ParseVersion(other.Version);
-
-        // Compare major, minor, patch in order
-        for (int i = 0; i < Math.Max(thisParts.Length, otherParts.Length); i++)
-        {
-            int thisValue = i < thisParts.Length ? thisParts[i] : 0;
-            int otherValue = i < otherParts.Length ? otherParts[i] : 0;
-
-            if (thisValue != otherValue)
-            {
-                return thisValue.CompareTo(otherValue);
-            }
-        }
-
-        return 0;
-    }
+    public override int GetHashCode() => SemVersion.GetHashCode();
 
     public static bool operator <(DependencyVersion left, DependencyVersion right)
     {
@@ -78,25 +78,4 @@ public record DependencyVersion : IComparable<DependencyVersion>
     {
         return version == null ? string.Empty : version.Version;
     }
-
-    private static int[] ParseVersion(string version)
-    {
-        if (version.StartsWith('v'))
-        {
-            version = version[1..].TrimStart('.');
-        }
-
-        var parts = version.Split('.');
-        var result = new int[parts.Length];
-        for (int i = 0; i < parts.Length; i++)
-        {
-            if (!int.TryParse(parts[i], out result[i]))
-            {
-                result[i] = -1;
-            }
-        }
-
-        return result;
-    }
-
 }
