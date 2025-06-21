@@ -111,7 +111,7 @@ public class DependencyVersionRangeTests
     [InlineData("[1.0.0, 2.0.0")]
     [InlineData("1.0.0, 2.0.0)")]
     public void Constructor_InvalidVersionRangeFormats_ThrowsArgumentException(string invalidVersionRange) =>
-        _ = Assert.Throws<ArgumentException>(() => new DependencyVersionRange(invalidVersionRange));
+        Assert.Throws<ArgumentException>(() => new DependencyVersionRange(invalidVersionRange));
 
     [Fact]
     public void Constructor_WithVersionRange_CreatesCorrectInstance()
@@ -130,7 +130,7 @@ public class DependencyVersionRangeTests
     public void MinVersion_Property_ReturnsExpectedVersion(string rangeString, string expectedMinVersion)
     {
         var versionRange = new DependencyVersionRange(rangeString);
-        
+
         Assert.Equal(expectedMinVersion, versionRange.MinVersion.ToString());
     }
 
@@ -154,7 +154,7 @@ public class DependencyVersionRangeTests
     {
         var versionRange1 = new DependencyVersionRange("[1.0.0, 2.0.0)");
         var versionRange2 = new DependencyVersionRange("[1.0.0, 2.0.0)");
-        
+
         Assert.Equal(versionRange1.GetHashCode(), versionRange2.GetHashCode());
     }
 
@@ -163,7 +163,7 @@ public class DependencyVersionRangeTests
     {
         var versionRange1 = new DependencyVersionRange("[1.0.0, 2.0.0)");
         var versionRange2 = new DependencyVersionRange("[1.0.0, 3.0.0)");
-        
+
         Assert.NotEqual(versionRange1.GetHashCode(), versionRange2.GetHashCode());
     }
 }
