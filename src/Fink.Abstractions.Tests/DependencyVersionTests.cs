@@ -209,7 +209,7 @@ public class DependencyVersionTests
     [InlineData("1.2.3.4.5")]
     [InlineData("not-a-version")]
     public void Constructor_InvalidVersionString_ThrowsArgumentException(string invalidVersion) =>
-        _ = Assert.Throws<ArgumentException>(() => new DependencyVersion(invalidVersion));
+        Assert.Throws<ArgumentException>(() => new DependencyVersion(invalidVersion));
 
     [Fact]
     public void GetHashCode_SameVersions_ReturnsSameHashCode()
