@@ -1,6 +1,7 @@
 using Fink.Abstractions;
 
 using NuGet.ProjectModel;
+using NuGet.Versioning;
 
 namespace Fink.Integrations.NuGet;
 
@@ -17,7 +18,10 @@ public static class LockFileExtensions
 
     internal static IEnumerable<Dependency> GetDependenciesOrThrow(this LockFileTarget target)
     {
-        Dependency frameworkDependency = new(new DependencyName(target.Name));
+        Dependency frameworkDependency = new(
+            new DependencyName(target.Name),
+            new DependencyVersion(
+                new NuGetVersion(target.TargetFramework.Version)));
 
         return target.Libraries.SelectMany(library =>
         {

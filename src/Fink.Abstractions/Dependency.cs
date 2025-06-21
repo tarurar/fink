@@ -1,6 +1,6 @@
 namespace Fink.Abstractions;
 
-public record Dependency(DependencyName Name, DependencyVersion? Version = null, Dependency? ParentDependency = null)
+public record Dependency(DependencyName Name, IDependencyVersioning Versioning, Dependency? ParentDependency = null)
 {
     public DependencyPath Path => ParentDependency switch
     {
@@ -8,9 +8,9 @@ public record Dependency(DependencyName Name, DependencyVersion? Version = null,
         _ => ParentDependency.Path.AddSegment(PathSegment)
     };
 
-    internal DependencyPathSegment PathSegment => Version switch
+    internal DependencyPathSegment PathSegment => Versioning switch
     {
         null => new DependencyPathSegment(Name),
-        _ => new DependencyPathSegment($"{Name} {Version}")
+        _ => new DependencyPathSegment($"{Name} {Versioning.ToString()}")
     };
 }

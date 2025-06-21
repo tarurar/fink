@@ -1,50 +1,48 @@
-using Semver;
+using NuGet.Versioning;
 
 namespace Fink.Abstractions;
 
 /// <summary>
-/// Represents a version of a dependency in a semantic version format.
+/// Represents a version of a dependency in a NuGet version format
 /// </summary>
-public sealed record DependencyVersion : IComparable<DependencyVersion>, IEquatable<DependencyVersion>
+public sealed record DependencyVersion :
+    IComparable<DependencyVersion>,
+    IEquatable<DependencyVersion>,
+    IDependencyVersioning
 {
-    /// <summary>
-    /// Original version string
-    /// </summary>
-    public string Version { get; init; }
-
-    /// <summary>
-    /// Parsed semantic version
-    /// </summary>
-    private SemVersion SemVersion { get; init; }
+    private NuGetVersion Version { get; init; }
 
     public DependencyVersion(string version)
     {
-        if (string.IsNullOrWhiteSpace(version))
-        {
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(version));
-        }
+        Version = NuGetVersion.TryParse(version, out var nuGetVersion)
+            ? nuGetVersion
+            : throw new ArgumentException($"Invalid version format: {version}, expected NuGet version format.", nameof(version));
+    }
 
-        if (!SemVersion.TryParse(version, SemVersionStyles.Any, out var semVersion))
-        {
-            throw new ArgumentException($"Invalid version format: {version}, expected semantic version format.", nameof(version));
-        }
-
-        SemVersion = semVersion;
+    public DependencyVersion(NuGetVersion version) : base()
+    {
         Version = version;
     }
 
-    public override string ToString() => Version;
+    public DependencyVersion MinVersion => this;
 
+    public override string ToString() => Version.ToString();
+
+    /// <summary>
+    /// Compares this instance with another DependencyVersion instance.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
     public int CompareTo(DependencyVersion? other) => other switch
     {
         null => 1,
         _ when ReferenceEquals(this, other) => 0,
-        _ => SemVersion.ComparePrecedenceTo(other.SemVersion)
+        _ => Version.CompareTo(other.Version)
     };
 
     public bool Equals(DependencyVersion? other) => CompareTo(other) == 0;
 
-    public override int GetHashCode() => SemVersion.GetHashCode();
+    public override int GetHashCode() => Version.GetHashCode();
 
     public static bool operator <(DependencyVersion left, DependencyVersion right)
     {
@@ -72,10 +70,5 @@ public sealed record DependencyVersion : IComparable<DependencyVersion>, IEquata
         ArgumentNullException.ThrowIfNull(left);
 
         return left.CompareTo(right) >= 0;
-    }
-
-    public static implicit operator string(DependencyVersion version)
-    {
-        return version == null ? string.Empty : version.Version;
     }
 }
