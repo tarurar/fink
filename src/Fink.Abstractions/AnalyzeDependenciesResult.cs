@@ -14,8 +14,7 @@ public abstract record AnalyzeDependenciesError : AnalyzeDependenciesResult, IEr
     public abstract string Build(ResourceManager rm);
 }
 
-public sealed record ConflictsDetectedError(
-    IReadOnlyCollection<Dependency> ConflictingDependencies)
+public sealed record ConflictsDetectedError(IReadOnlyCollection<DependencyConflict> Conflicts)
     : AnalyzeDependenciesError
 {
     public override int ExitCode => ExitCodes.ConflictsDetected;
@@ -24,7 +23,7 @@ public sealed record ConflictsDetectedError(
     {
         ArgumentNullException.ThrowIfNull(rm);
 
-        if (ConflictingDependencies.Count == 0)
+        if (Conflicts.Count == 0)
         {
             return rm.GetString("NoConflictsFound", CultureInfo.InvariantCulture) ??
                    "No conflicts found, but the message is missing in resources.";
@@ -36,16 +35,13 @@ public sealed record ConflictsDetectedError(
 
         var sb = new StringBuilder();
         sb.AppendLine(conflictsFound);
-        sb.AppendLine();
-        foreach (var packageNameGroup in ConflictingDependencies.GroupBy(d => d.Name))
+        foreach (var conflict in Conflicts)
         {
-            sb.AppendLine(CultureInfo.InvariantCulture, $"Package {packageNameGroup.Key} has {packageNameGroup.DistinctBy(d => d.Version).Count()} versions:");
-            foreach (var packageVersionGroup in packageNameGroup.GroupBy(d => d.Version).OrderBy(g => g.Key))
+            sb.AppendLine();
+            sb.AppendLine(CultureInfo.InvariantCulture, $"Package {conflict.Name} has {conflict.Versions.Count} versions:");
+            foreach (var d in conflict.ConflictedDependencies)
             {
-                foreach (Dependency dependency in packageVersionGroup)
-                {
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"  {dependency.Version} (Path: {dependency.Path})");
-                }
+                sb.AppendLine(CultureInfo.InvariantCulture, $"  - {d.Versioning.ToString()} (Path: {d.Path})");
             }
         }
 
@@ -53,5 +49,4 @@ public sealed record ConflictsDetectedError(
     }
 }
 
-public sealed record AnalyzeDependenciesSuccess : AnalyzeDependenciesResult,
-    ISuccessResult;
+public sealed record AnalyzeDependenciesSuccess : AnalyzeDependenciesResult, ISuccessResult;

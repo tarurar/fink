@@ -67,16 +67,10 @@ internal sealed class Program
         }
     }
 
-    private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies)
-    {
-        var multipleVersionDependencies = dependencies
-            .GroupBy(d => new { d.Name, d.Version })
-            .GroupBy(d => d.Key.Name)
-            .Where(g => g.Count() > 1)
-            .ToList();
-
-        return multipleVersionDependencies.Count > 0
-            ? new ConflictsDetectedError(multipleVersionDependencies.SelectMany(g => g.SelectMany(d => d)).ToList())
-            : new AnalyzeDependenciesSuccess();
-    }
+    private static AnalyzeDependenciesResult Analyze(List<Dependency> dependencies) =>
+        DependencyAnalyzer.FindVersionConflicts(dependencies) switch
+        {
+            { Count: > 0 } conflicts => new ConflictsDetectedError(conflicts),
+            _ => new AnalyzeDependenciesSuccess()
+        };
 }
