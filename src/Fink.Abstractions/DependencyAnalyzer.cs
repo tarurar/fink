@@ -21,7 +21,8 @@ public static class DependencyAnalyzer
                     new DependencyConflict(
                         g.Key,
                         [.. uniqueVersions],
-                        [.. g]));
+                        [.. g],
+                        DependencyConflictSeverity.Error));
             }
         }
 
