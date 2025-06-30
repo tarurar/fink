@@ -391,6 +391,7 @@ dotnet_diagnostic.CA1031.severity = none
 # Disable IDE0055 (formatting)
 [*.cs]
 dotnet_diagnostic.IDE0055.severity = none
+dotnet_diagnostic.IDE0046.severity = none
 # Disable CA1040 (Avoid empty interfaces) for Fink.Abstractions only
 [**/Fink.Abstractions/*.cs]
 dotnet_diagnostic.CA1040.severity = none
