@@ -78,7 +78,7 @@ public class DependencyVersionTests
         var v2 = new DependencyVersion(version2);
 
         var result = v1.CompareTo(v2);
-        Assert.Equal(Math.Sign(expected), Math.Sign(result));
+        Assert.Equal(System.Math.Sign(expected), System.Math.Sign(result));
     }
 
     [Theory]
