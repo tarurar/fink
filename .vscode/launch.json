@@ -7,7 +7,10 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/src/Fink/bin/Debug/net9.0/Fink.dll",
-            "args": [],
+            "args": [
+                "${input:projectPath}",
+                "${input:targetFramework}"
+            ],
             "cwd": "${workspaceFolder}/src/Fink",
             "console": "internalConsole",
             "stopAtEntry": false
@@ -16,6 +19,20 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "projectPath",
+            "description": "Path to the project file (.csproj)",
+            "default": "",
+            "type": "promptString"
+        },
+        {
+            "id": "targetFramework",
+            "description": "Target framework (e.g., net9.0, net8.0)",
+            "default": "net8.0",
+            "type": "promptString"
         }
     ]
 }
