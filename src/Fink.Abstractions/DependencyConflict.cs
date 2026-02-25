@@ -4,4 +4,5 @@ public record DependencyConflict(
     DependencyName Name,
     IReadOnlyCollection<IDependencyVersioning> Versions,
     IReadOnlyCollection<Dependency> ConflictedDependencies,
-    DependencyConflictSeverity Severity);
+    DependencyConflictSeverity Severity,
+    DependencyVersion? FirstConflictingVersion);
