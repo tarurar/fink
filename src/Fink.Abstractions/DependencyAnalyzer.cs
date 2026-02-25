@@ -45,7 +45,13 @@ public static class DependencyAnalyzer
             return (DependencyConflictSeverity.Error, conflictingVersion);
         }
 
-        // TODO: Implement Warning and Info level detection
+        var (hasMinorConflict, minorConflictingVersion) = FindMinorVersionConflict(versions);
+        if (hasMinorConflict)
+        {
+            return (DependencyConflictSeverity.Warning, minorConflictingVersion);
+        }
+
+        // TODO: Implement Info level detection for patch version conflicts
         return (DependencyConflictSeverity.Error, null);
     }
 
@@ -96,6 +102,69 @@ public static class DependencyAnalyzer
                     satisfactionResults.Any(satisfied => !satisfied))
                 {
                     return (true, new DependencyVersion(testVersion));
+                }
+            }
+        }
+
+        return (false, null);
+    }
+
+    private static (bool hasConflict, DependencyVersion? firstConflictingVersion) FindMinorVersionConflict(
+        IReadOnlyCollection<IDependencyVersioning> versions)
+    {
+        var versionRanges = versions.Select(GetVersionRange).Where(vr => vr != null).ToList();
+
+        if (versionRanges.Count < 2)
+        {
+            return (false, null);
+        }
+
+        var minMajorVersion = versionRanges
+            .Select(vr => vr!.MinVersion?.Major ?? 0)
+            .Min();
+
+        var maxMajorVersion = versionRanges
+            .Where(vr => vr!.MaxVersion != null)
+            .Select(vr => vr!.MaxVersion!.Major)
+            .DefaultIfEmpty(minMajorVersion)
+            .Max();
+
+        for (var majorVersion = minMajorVersion; majorVersion <= maxMajorVersion; majorVersion++)
+        {
+            var minMinorVersion = versionRanges
+                .Where(vr => (vr!.MinVersion?.Major ?? 0) <= majorVersion)
+                .Select(vr => vr!.MinVersion?.Major == majorVersion ? vr.MinVersion.Minor : 0)
+                .DefaultIfEmpty(0)
+                .Min();
+
+            var maxMinorVersion = versionRanges
+                .Where(vr => vr!.MaxVersion != null && vr.MaxVersion.Major >= majorVersion)
+                .Select(vr => vr!.MaxVersion!.Major == majorVersion ? vr.MaxVersion.Minor : 999)
+                .DefaultIfEmpty(minMinorVersion + 100)
+                .Max();
+
+            var testRangeStart = Math.Max(0, minMinorVersion - 1);
+            var testRangeEnd = maxMinorVersion + 2;
+
+            for (var minorVersion = testRangeStart; minorVersion <= testRangeEnd; minorVersion++)
+            {
+                var testVersions = new[]
+                {
+                    new NuGetVersion(majorVersion, minorVersion, 0),
+                    new NuGetVersion(majorVersion, minorVersion, 999999)
+                };
+
+                foreach (var testVersion in testVersions)
+                {
+                    var satisfactionResults = versionRanges
+                        .Select(vr => vr!.Satisfies(testVersion))
+                        .ToList();
+
+                    if (satisfactionResults.Any(satisfied => satisfied) &&
+                        satisfactionResults.Any(satisfied => !satisfied))
+                    {
+                        return (true, new DependencyVersion(testVersion));
+                    }
                 }
             }
         }
