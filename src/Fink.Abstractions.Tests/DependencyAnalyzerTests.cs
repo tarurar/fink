@@ -389,19 +389,37 @@ public class DependencyAnalyzerTests
     }
 
     [Fact]
-    public void FindVersionConflicts_SameMajorAndMinorVersionDifferentPatch_ReturnsErrorSeverity()
+    public void FindVersionConflicts_SameMajorAndMinorVersionDifferentPatch_WhenLowerVersionIsMinorBoundary_ReturnsWarningSeverity()
     {
-        // TODO: This should return Info severity when patch version detection is implemented
+        // 1.0.0 is both X.0.0 (major) and X.Y.0 (minor) boundary — caught by major probe first
+        // But 1.1.0 vs 1.1.1: 1.1.0 is X.Y.0 minor boundary → caught by minor probe
         var dependencies = new List<Dependency>
         {
-            new(new DependencyName("package"), new DependencyVersion("1.0.0")),
-            new(new DependencyName("package"), new DependencyVersion("1.0.1"))
+            new(new DependencyName("package"), new DependencyVersion("1.1.0")),
+            new(new DependencyName("package"), new DependencyVersion("1.1.1"))
         };
 
         var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
 
         var conflict = Assert.Single(conflicts);
-        Assert.Equal(DependencyConflictSeverity.Error, conflict.Severity); // Will be Info when implemented
+        Assert.Equal(DependencyConflictSeverity.Warning, conflict.Severity);
+    }
+
+    [Fact]
+    public void FindVersionConflicts_SameMajorAndMinorVersionDifferentPatch_WhenNotAtMinorBoundary_ReturnsInfoSeverity()
+    {
+        // 1.1.1 vs 1.1.2: neither is X.Y.0 minor boundary → patch conflict
+        var dependencies = new List<Dependency>
+        {
+            new(new DependencyName("package"), new DependencyVersion("1.1.1")),
+            new(new DependencyName("package"), new DependencyVersion("1.1.2"))
+        };
+
+        var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
+
+        var conflict = Assert.Single(conflicts);
+        Assert.Equal(DependencyConflictSeverity.Info, conflict.Severity);
+        Assert.NotNull(conflict.FirstConflictingVersion);
     }
 
     [Fact]
@@ -430,7 +448,7 @@ public class DependencyAnalyzerTests
 
         Assert.Equal(DependencyConflictSeverity.Error, package1Conflict.Severity);
         Assert.Equal(DependencyConflictSeverity.Warning, package2Conflict.Severity);
-        Assert.Equal(DependencyConflictSeverity.Error, package3Conflict.Severity); // Will change when Phase 3 is implemented
+        Assert.Equal(DependencyConflictSeverity.Info, package3Conflict.Severity);
     }
 
     [Fact]
@@ -570,6 +588,85 @@ public class DependencyAnalyzerTests
         Assert.Equal(DependencyConflictSeverity.Warning, conflict.Severity);
         Assert.NotNull(conflict.FirstConflictingVersion);
         Assert.StartsWith("8.", conflict.FirstConflictingVersion.ToString(), StringComparison.Ordinal);
+    }
+
+    // Patch Version Conflict Detection Tests (Info Severity)
+
+    [Fact]
+    public void FindVersionConflicts_PatchVersionConflict_PlanExample_ReturnsInfoSeverity()
+    {
+        // Plan example: [8.0.0, 8.15.2] and [8.0.0, 8.15.10]
+        // No major or minor conflict, but 8.15.3 satisfies second range but not first
+        var dependencies = new List<Dependency>
+        {
+            new(new DependencyName("package"), new DependencyVersionRange("[8.0.0, 8.15.2]")),
+            new(new DependencyName("package"), new DependencyVersionRange("[8.0.0, 8.15.10]"))
+        };
+
+        var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
+
+        var conflict = Assert.Single(conflicts);
+        Assert.Equal(DependencyConflictSeverity.Info, conflict.Severity);
+        Assert.NotNull(conflict.FirstConflictingVersion);
+    }
+
+    [Theory]
+    [InlineData("1.1.1", "1.1.2")]
+    [InlineData("2.3.5", "2.3.8")]
+    [InlineData("10.2.1", "10.2.3")]
+    public void FindVersionConflicts_DifferentPatchVersions_ReturnsInfoSeverity(string version1, string version2)
+    {
+        var dependencies = new List<Dependency>
+        {
+            new(new DependencyName("package"), new DependencyVersion(version1)),
+            new(new DependencyName("package"), new DependencyVersion(version2))
+        };
+
+        var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
+
+        var conflict = Assert.Single(conflicts);
+        Assert.Equal(DependencyConflictSeverity.Info, conflict.Severity);
+        Assert.NotNull(conflict.FirstConflictingVersion);
+    }
+
+    [Theory]
+    [InlineData("[1.1.1, 1.1.5]", "[1.1.3, 1.1.8]")]
+    [InlineData("[2.3.1, 2.3.10)", "[2.3.5, 2.3.15)")]
+    public void FindVersionConflicts_PatchVersionRangeConflicts_ReturnsInfoSeverity(string range1, string range2)
+    {
+        ArgumentNullException.ThrowIfNull(range1);
+        ArgumentNullException.ThrowIfNull(range2);
+
+        var dependencies = new List<Dependency>
+        {
+            new(new DependencyName("package"), CreateVersioning(range1)),
+            new(new DependencyName("package"), CreateVersioning(range2))
+        };
+
+        var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
+
+        var conflict = Assert.Single(conflicts);
+        Assert.Equal(DependencyConflictSeverity.Info, conflict.Severity);
+        Assert.NotNull(conflict.FirstConflictingVersion);
+    }
+
+    [Fact]
+    public void FindVersionConflicts_PatchVersionConflict_FirstConflictingVersion_IsInCorrectMinor()
+    {
+        // [8.0.0, 8.15.2] and [8.0.0, 8.15.10]
+        // The first conflicting version should be 8.15.3 (first patch beyond first range's upper bound)
+        var dependencies = new List<Dependency>
+        {
+            new(new DependencyName("package"), new DependencyVersionRange("[8.0.0, 8.15.2]")),
+            new(new DependencyName("package"), new DependencyVersionRange("[8.0.0, 8.15.10]"))
+        };
+
+        var conflicts = DependencyAnalyzer.FindVersionConflicts(dependencies);
+
+        var conflict = Assert.Single(conflicts);
+        Assert.Equal(DependencyConflictSeverity.Info, conflict.Severity);
+        Assert.NotNull(conflict.FirstConflictingVersion);
+        Assert.StartsWith("8.15.", conflict.FirstConflictingVersion.ToString(), StringComparison.Ordinal);
     }
 
     private static IDependencyVersioning CreateVersioning(string version)

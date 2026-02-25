@@ -38,7 +38,6 @@ public static class DependencyAnalyzer
     private static (DependencyConflictSeverity severity, DependencyVersion? firstConflictingVersion) AnalyzeConflict(
         IReadOnlyCollection<IDependencyVersioning> versions)
     {
-        // For now, only implement Error level detection for major version conflicts
         var (hasMajorConflict, conflictingVersion) = FindMajorVersionConflict(versions);
         if (hasMajorConflict)
         {
@@ -51,7 +50,12 @@ public static class DependencyAnalyzer
             return (DependencyConflictSeverity.Warning, minorConflictingVersion);
         }
 
-        // TODO: Implement Info level detection for patch version conflicts
+        var (hasPatchConflict, patchConflictingVersion) = FindPatchVersionConflict(versions);
+        if (hasPatchConflict)
+        {
+            return (DependencyConflictSeverity.Info, patchConflictingVersion);
+        }
+
         return (DependencyConflictSeverity.Error, null);
     }
 
@@ -156,6 +160,84 @@ public static class DependencyAnalyzer
 
                 foreach (var testVersion in testVersions)
                 {
+                    var satisfactionResults = versionRanges
+                        .Select(vr => vr!.Satisfies(testVersion))
+                        .ToList();
+
+                    if (satisfactionResults.Any(satisfied => satisfied) &&
+                        satisfactionResults.Any(satisfied => !satisfied))
+                    {
+                        return (true, new DependencyVersion(testVersion));
+                    }
+                }
+            }
+        }
+
+        return (false, null);
+    }
+
+    private static (bool hasConflict, DependencyVersion? firstConflictingVersion) FindPatchVersionConflict(
+        IReadOnlyCollection<IDependencyVersioning> versions)
+    {
+        var versionRanges = versions.Select(GetVersionRange).Where(vr => vr != null).ToList();
+
+        if (versionRanges.Count < 2)
+        {
+            return (false, null);
+        }
+
+        var minMajorVersion = versionRanges
+            .Select(vr => vr!.MinVersion?.Major ?? 0)
+            .Min();
+
+        var maxMajorVersion = versionRanges
+            .Where(vr => vr!.MaxVersion != null)
+            .Select(vr => vr!.MaxVersion!.Major)
+            .DefaultIfEmpty(minMajorVersion)
+            .Max();
+
+        for (var majorVersion = minMajorVersion; majorVersion <= maxMajorVersion; majorVersion++)
+        {
+            var minMinorVersion = versionRanges
+                .Where(vr => (vr!.MinVersion?.Major ?? 0) <= majorVersion)
+                .Select(vr => vr!.MinVersion?.Major == majorVersion ? vr.MinVersion.Minor : 0)
+                .DefaultIfEmpty(0)
+                .Min();
+
+            var maxMinorVersion = versionRanges
+                .Where(vr => vr!.MaxVersion != null && vr.MaxVersion.Major >= majorVersion)
+                .Select(vr => vr!.MaxVersion!.Major == majorVersion ? vr.MaxVersion.Minor : 999)
+                .DefaultIfEmpty(minMinorVersion + 100)
+                .Max();
+
+            for (var minorVersion = minMinorVersion; minorVersion <= maxMinorVersion; minorVersion++)
+            {
+                var minPatchVersion = versionRanges
+                    .Where(vr => (vr!.MinVersion?.Major ?? 0) <= majorVersion &&
+                                 (vr.MinVersion?.Major < majorVersion || (vr.MinVersion?.Minor ?? 0) <= minorVersion))
+                    .Select(vr => vr!.MinVersion?.Major == majorVersion && vr.MinVersion.Minor == minorVersion
+                        ? vr.MinVersion.Patch
+                        : 0)
+                    .DefaultIfEmpty(0)
+                    .Min();
+
+                var maxPatchVersion = versionRanges
+                    .Where(vr => vr!.MaxVersion != null &&
+                                 vr.MaxVersion.Major >= majorVersion &&
+                                 (vr.MaxVersion.Major > majorVersion || vr.MaxVersion.Minor >= minorVersion))
+                    .Select(vr => vr!.MaxVersion!.Major == majorVersion && vr.MaxVersion.Minor == minorVersion
+                        ? vr.MaxVersion.Patch
+                        : 999)
+                    .DefaultIfEmpty(minPatchVersion + 100)
+                    .Max();
+
+                var testRangeStart = Math.Max(0, minPatchVersion - 1);
+                var testRangeEnd = maxPatchVersion + 2;
+
+                for (var patchVersion = testRangeStart; patchVersion <= testRangeEnd; patchVersion++)
+                {
+                    var testVersion = new NuGetVersion(majorVersion, minorVersion, patchVersion);
+
                     var satisfactionResults = versionRanges
                         .Select(vr => vr!.Satisfies(testVersion))
                         .ToList();
