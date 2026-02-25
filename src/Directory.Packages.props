@@ -1,12 +1,12 @@
 <Project>
   <ItemGroup>
-    <PackageVersion Include="Buildalyzer" Version="7.1.0" />
+    <PackageVersion Include="Buildalyzer" Version="8.0.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="FsCheck.Xunit" Version="3.0.0" />
-    <PackageVersion Include="Microsoft.Build.Framework" Version="17.14.8" />
-    <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.12.36" />
-    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.14.8" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="18.3.3" />
+    <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.3.3" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.3.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="NuGet.ProjectModel" Version="6.12.1" />

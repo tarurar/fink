@@ -16,7 +16,9 @@ public class ResultTests
             ?? throw new InvalidOperationException("Could not determine assembly directory.");
 
         List<Assembly> finkAssemblies =
-            [.. Directory.GetFiles(assemblyDirectory, "Fink*.dll").Select(Assembly.LoadFrom)];
+            [.. Directory.GetFiles(assemblyDirectory, "Fink*.dll")
+                .Where(f => !f.Contains("Fink.Build", StringComparison.Ordinal))
+                .Select(Assembly.LoadFrom)];
 
         List<Type> nonAbstractDescendants = [];
         foreach (var descedantsInAssembly in finkAssemblies.Select(assembly => assembly.GetTypes()
